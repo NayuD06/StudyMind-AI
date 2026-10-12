@@ -40,17 +40,19 @@ enum ChatRole {
 }
 
 model User {
-  id           Int      @id @default(autoincrement())
-  name         String
-  email        String   @unique
-  passwordHash String
-  role         Role     @default(STUDENT)
-  isLocked     Boolean  @default(false) // quản trị viên khóa: không đăng nhập hay làm mới phiên được
-  school       String?
-  major        String?
-  avatarUrl    String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id               Int       @id @default(autoincrement())
+  name             String
+  email            String    @unique
+  passwordHash     String
+  role             Role      @default(STUDENT)
+  isLocked         Boolean   @default(false) // quản trị viên khóa: không đăng nhập hay làm mới phiên được
+  // Access token cấp trước mốc này bị từ chối (đặt lại khi đổi mật khẩu hoặc đăng xuất mọi thiết bị)
+  tokensValidAfter DateTime?
+  school           String?
+  major            String?
+  avatarUrl        String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   documents         Document[]     @relation("UploadedDocuments")
   reviewedDocuments Document[]     @relation("ReviewedDocuments")
@@ -62,6 +64,7 @@ model User {
   chatSessions      ChatSession[]
   refreshTokens     RefreshToken[]
   adminLogs         AdminLog[]
+  notifications     Notification[]
 
   @@map("users")
 }
@@ -116,16 +119,17 @@ model Document {
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 
-  uploader     User              @relation("UploadedDocuments", fields: [uploaderId], references: [id])
-  reviewedBy   User?             @relation("ReviewedDocuments", fields: [reviewedById], references: [id], onDelete: SetNull)
-  subjects     DocumentSubject[]
-  comments     Comment[]
-  ratings      Rating[]
-  favorites    Favorite[]
-  downloads    Download[]
-  reports      Report[]
-  chunks       DocumentChunk[]
-  chatSessions ChatSession[]
+  uploader      User              @relation("UploadedDocuments", fields: [uploaderId], references: [id])
+  reviewedBy    User?             @relation("ReviewedDocuments", fields: [reviewedById], references: [id], onDelete: SetNull)
+  subjects      DocumentSubject[]
+  comments      Comment[]
+  ratings       Rating[]
+  favorites     Favorite[]
+  downloads     Download[]
+  reports       Report[]
+  chunks        DocumentChunk[]
+  chatSessions  ChatSession[]
+  notifications Notification[]
 
   @@index([uploaderId])
   // Dùng cho tìm kiếm từ khóa (mốc so sánh với tìm kiếm ngữ nghĩa)
@@ -210,6 +214,22 @@ model Report {
 
   @@index([status])
   @@map("reports")
+}
+
+// Thông báo trong trang cho người dùng (tài liệu được duyệt, bị từ chối, có bình luận mới...)
+model Notification {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  message    String    @db.VarChar(500)
+  documentId Int? // tài liệu liên quan, để bấm vào là mở được
+  readAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document? @relation(fields: [documentId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@map("notifications")
 }
 
 // Nhật ký thao tác của quản trị viên: chỉ ghi thêm, không có API sửa hay xóa

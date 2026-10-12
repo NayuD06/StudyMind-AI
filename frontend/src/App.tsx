@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout.tsx'
+import AccountPage from './pages/AccountPage.tsx'
 import DocumentDetailPage from './pages/DocumentDetailPage.tsx'
 import DocumentsPage from './pages/DocumentsPage.tsx'
 import HomePage from './pages/HomePage.tsx'
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="documents/:id" element={<DocumentDetailPage />} />
         <Route path="upload" element={<UploadPage />} />
         <Route path="me" element={<MyDocumentsPage />} />
+        <Route path="account" element={<AccountPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
         <Route path="*" element={<NotFoundPage />} />

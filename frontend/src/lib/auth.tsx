@@ -9,6 +9,8 @@ type AuthValue = {
   login: (input: Credentials) => Promise<void>
   register: (input: Credentials & { name: string }) => Promise<void>
   logout: () => Promise<void>
+  changePassword: (input: { currentPassword: string; newPassword: string }) => Promise<void>
+  logoutAll: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthValue | null>(null)
@@ -38,6 +40,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     register: (input) => start('/auth/register', input),
     logout: async () => {
       await api.post('/auth/logout')
+      setAccessToken(null)
+      setUser(null)
+    },
+    // Server hủy mọi phiên cũ và trả về phiên mới cho thiết bị này
+    changePassword: (input) => start('/auth/change-password', input),
+    logoutAll: async () => {
+      await api.post('/auth/logout-all')
       setAccessToken(null)
       setUser(null)
     },

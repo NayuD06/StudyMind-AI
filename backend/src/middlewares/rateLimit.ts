@@ -59,3 +59,22 @@ export const aiLimiter = rateLimit({
   keyGenerator: (req) => (req.user ? `user:${req.user.id}` : ipKeyGenerator(req.ip ?? '')),
   message: { message: 'Bạn hỏi AI quá nhanh, thử lại sau một phút.' },
 })
+
+const perUser = (req: { user?: { id: number }; ip?: string }) => (req.user ? `user:${req.user.id}` : ipKeyGenerator(req.ip ?? ''))
+
+// Bình luận và báo cáo: giới hạn theo tài khoản để không bị spam (đặt sau requireAuth)
+export const commentLimiter = rateLimit({
+  ...base,
+  windowMs: 10 * 60_000,
+  limit: 20,
+  keyGenerator: perUser,
+  message: { message: 'Bạn bình luận quá nhanh, thử lại sau ít phút.' },
+})
+
+export const reportLimiter = rateLimit({
+  ...base,
+  windowMs: 60 * 60_000,
+  limit: 10,
+  keyGenerator: perUser,
+  message: { message: 'Bạn gửi quá nhiều báo cáo, thử lại sau một giờ.' },
+})

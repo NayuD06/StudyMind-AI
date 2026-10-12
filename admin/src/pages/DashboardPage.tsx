@@ -9,6 +9,7 @@ export type Stats = {
   lockedUsers: number
   subjects: number
   downloads: number
+  openReports: number
   documents: { pending: number; approved: number; rejected: number }
   uploads: { date: string; count: number }[]
 }

@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { lazy, Suspense, useState, type FormEvent } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import Comments from '../components/Comments.tsx'
+import ReportBox from '../components/ReportBox.tsx'
 import { api, errorMessage } from '../lib/api.ts'
 import { useAuth } from '../lib/auth.tsx'
 import { fetchFile, fileSize, ratingText, saveBlob, subjectCode, subjectName, type DocDetail } from '../lib/documents.ts'
@@ -167,9 +169,12 @@ export default function DocumentDetailPage() {
       )}
 
       <div className="mt-8 grid items-start gap-6 lg:grid-cols-[1.4fr_1fr]">
-        <Suspense fallback={<div className="panel shadow-hard min-h-[32rem]" />}>
-          <PdfViewer docId={doc.id} />
-        </Suspense>
+        <div className="min-w-0 space-y-6">
+          <Suspense fallback={<div className="panel shadow-hard min-h-[32rem]" />}>
+            <PdfViewer docId={doc.id} />
+          </Suspense>
+          <Comments docId={doc.id} canPost={isPublic} />
+        </div>
 
         <div className="panel shadow-hard flex min-h-[32rem] flex-col lg:sticky lg:top-20">
           <div className="flex border-b-2 border-ink font-display text-sm font-bold">
@@ -232,6 +237,12 @@ export default function DocumentDetailPage() {
                       {doc.myRating && <span className="ml-2 font-mono text-xs text-muted">ĐÃ CHẤM {doc.myRating}/5</span>}
                     </div>
                   )}
+                </div>
+              )}
+
+              {isPublic && user && !isMine && (
+                <div className="border-t-2 border-ink pt-4">
+                  <ReportBox key={doc.id} docId={doc.id} />
                 </div>
               )}
             </div>

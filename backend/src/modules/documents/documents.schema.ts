@@ -32,6 +32,18 @@ export const listDocumentsSchema = z.object({
 
 export const ratingSchema = z.object({ score: z.number().int().min(1).max(5) })
 
+export const commentSchema = z.object({ content: z.string().trim().min(1, 'Bình luận đang trống').max(1000, 'Bình luận quá dài') })
+
+export const commentParamSchema = z.object({ id: z.coerce.number().int().positive(), commentId: z.coerce.number().int().positive() })
+
+export const reportSchema = z.object({ reason: z.string().trim().min(10, 'Hãy mô tả rõ hơn (ít nhất 10 ký tự)').max(500) })
+
+export const reportQuerySchema = z.object({ status: z.enum(['OPEN', 'RESOLVED', 'REJECTED']).default('OPEN') })
+
+export const resolveReportSchema = z
+  .object({ action: z.enum(['REMOVE', 'DISMISS']), reason: z.string().trim().max(500).optional() })
+  .refine((value) => value.action === 'DISMISS' || !!value.reason, { message: 'Cần ghi lý do khi gỡ tài liệu', path: ['reason'] })
+
 export const idParamSchema = z.object({ id: z.coerce.number().int().positive() })
 
 export const moderationQuerySchema = z.object({

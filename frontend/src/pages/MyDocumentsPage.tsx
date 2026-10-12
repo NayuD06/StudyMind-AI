@@ -55,7 +55,12 @@ export default function MyDocumentsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <p className="font-mono text-xs text-muted">/ CỦA TÔI</p>
+      <p className="flex justify-between font-mono text-xs text-muted">
+        <span>/ CỦA TÔI</span>
+        <Link to="/account" className="link-wipe text-ink">
+          TÀI KHOẢN & MẬT KHẨU →
+        </Link>
+      </p>
       <h1 className="mt-2 overflow-hidden pb-1 font-display text-5xl font-bold">
         <span className="block animate-rise">Tài liệu của tôi</span>
       </h1>

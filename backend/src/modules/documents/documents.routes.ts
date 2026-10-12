@@ -1,9 +1,19 @@
 import { Router } from 'express'
 import multer from 'multer'
 import { optionalAuth, requireAuth } from '../../middlewares/auth.js'
-import { uploadLimiter } from '../../middlewares/rateLimit.js'
-import { createDocumentSchema, idParamSchema, listDocumentsSchema, ratingSchema } from './documents.schema.js'
+import { commentLimiter, reportLimiter, uploadLimiter } from '../../middlewares/rateLimit.js'
+import * as commentsService from './comments.service.js'
+import {
+  commentParamSchema,
+  commentSchema,
+  createDocumentSchema,
+  idParamSchema,
+  listDocumentsSchema,
+  ratingSchema,
+  reportSchema,
+} from './documents.schema.js'
 import * as documentsService from './documents.service.js'
+import * as reportsService from './reports.service.js'
 
 export const MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 
@@ -64,6 +74,28 @@ documentsRouter.put('/:id/favorite', requireAuth, async (req, res) => {
 documentsRouter.delete('/:id/favorite', requireAuth, async (req, res) => {
   const { id } = idParamSchema.parse(req.params)
   res.json(await documentsService.setFavorite(id, req.user!, false))
+})
+
+documentsRouter.get('/:id/comments', optionalAuth, async (req, res) => {
+  const { id } = idParamSchema.parse(req.params)
+  res.json(await commentsService.listComments(id, req.user))
+})
+
+documentsRouter.post('/:id/comments', requireAuth, commentLimiter, async (req, res) => {
+  const { id } = idParamSchema.parse(req.params)
+  res.status(201).json({ comment: await commentsService.addComment(id, commentSchema.parse(req.body), req.user!) })
+})
+
+documentsRouter.delete('/:id/comments/:commentId', requireAuth, async (req, res) => {
+  const { id, commentId } = commentParamSchema.parse(req.params)
+  await commentsService.deleteComment(id, commentId, req.user!)
+  res.status(204).end()
+})
+
+documentsRouter.post('/:id/reports', requireAuth, reportLimiter, async (req, res) => {
+  const { id } = idParamSchema.parse(req.params)
+  await reportsService.createReport(id, reportSchema.parse(req.body), req.user!)
+  res.status(201).json({ ok: true })
 })
 
 documentsRouter.delete('/:id', requireAuth, async (req, res) => {

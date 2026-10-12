@@ -2,7 +2,7 @@ import { Router, type Request, type Response } from 'express'
 import { isProduction } from '../../config/env.js'
 import { requireAuth } from '../../middlewares/auth.js'
 import { authLimiter, loginEmailLimiter, registerLimiter } from '../../middlewares/rateLimit.js'
-import { loginSchema, registerSchema } from './auth.schema.js'
+import { changePasswordSchema, loginSchema, registerSchema } from './auth.schema.js'
 import * as authService from './auth.service.js'
 
 // Trang quản trị (thư mục admin/) gửi kèm header này. Nó dùng cookie riêng để phiên quản trị
@@ -45,6 +45,16 @@ authRouter.post('/refresh', async (req, res) => {
 
 authRouter.post('/logout', async (req, res) => {
   await authService.logout(req.cookies[cookieName(req)])
+  res.clearCookie(cookieName(req), cookieOptions)
+  res.status(204).end()
+})
+
+authRouter.post('/change-password', requireAuth, authLimiter, async (req, res) => {
+  sendSession(req, res, 200, await authService.changePassword(req.user!.id, changePasswordSchema.parse(req.body)))
+})
+
+authRouter.post('/logout-all', requireAuth, async (req, res) => {
+  await authService.logoutAll(req.user!.id)
   res.clearCookie(cookieName(req), cookieOptions)
   res.status(204).end()
 })

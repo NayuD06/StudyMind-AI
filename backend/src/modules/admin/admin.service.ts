@@ -16,12 +16,13 @@ export async function getStats() {
   start.setHours(0, 0, 0, 0)
   start.setDate(start.getDate() - 6)
 
-  const [users, lockedUsers, byStatus, subjects, downloads, recent] = await Promise.all([
+  const [users, lockedUsers, byStatus, subjects, downloads, openReports, recent] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { isLocked: true } }),
     prisma.document.groupBy({ by: ['moderationStatus'], _count: true }),
     prisma.subject.count(),
     prisma.download.count(),
+    prisma.report.count({ where: { status: 'OPEN' } }),
     prisma.document.findMany({ where: { createdAt: { gte: start } }, select: { createdAt: true } }),
   ])
 
@@ -37,6 +38,7 @@ export async function getStats() {
     lockedUsers,
     subjects,
     downloads,
+    openReports,
     documents: { pending: count('PENDING'), approved: count('APPROVED'), rejected: count('REJECTED') },
     uploads,
   }

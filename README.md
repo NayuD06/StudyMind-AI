@@ -29,6 +29,18 @@ npm run dev
 
 `db:seed` tạo danh sách môn học và tài khoản quản trị đầu tiên từ `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` trong `backend/.env`. Chạy lại không ghi đè mật khẩu của tài khoản đã có.
 
+Muốn có sẵn nội dung để demo, đặt `DEMO_PASSWORD` trong `backend/.env` rồi chạy:
+
+```bash
+npm run db:seed:demo
+```
+
+Lệnh này tạo 6 sinh viên mẫu (email `@demo.studymind.local`, đăng nhập bằng `DEMO_PASSWORD`), 18 tài liệu PDF thuộc 8 môn (14 đã duyệt, 2 chờ duyệt, 2 bị từ chối) kèm đánh giá, lượt lưu, lượt tải, bình luận, 2 báo cáo đang chờ và thông báo. Chạy lại sẽ xóa dữ liệu mẫu cũ rồi tạo mới; dữ liệu thật không bị đụng tới. Chỉ xóa dữ liệu mẫu:
+
+```bash
+npm run db:seed:demo -- --clear
+```
+
 ```bash
 cd frontend
 npm run dev
@@ -70,9 +82,11 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 |---|---|
 | Trang chủ | Ô tìm kiếm, 4 tài liệu được tải nhiều nhất |
 | Thư viện | Tìm theo tiêu đề, mô tả, tên môn; lọc theo môn; sắp xếp mới nhất hoặc tải nhiều; phân trang |
-| Chi tiết tài liệu | Đọc PDF ngay trên trang (chuyển trang, phóng to), lưu lại, chấm 1 đến 5 sao, tải xuống |
+| Chi tiết tài liệu | Đọc PDF ngay trên trang (chuyển trang, phóng to), lưu lại, chấm 1 đến 5 sao, tải xuống, bình luận, báo cáo vi phạm |
 | Đăng tài liệu | Tải PDF lên, cảnh báo nếu có email hay số điện thoại |
 | Của tôi | Tài liệu đã đăng kèm trạng thái duyệt và lý do từ chối, tài liệu đã lưu |
+| Tài khoản | Đổi mật khẩu, đăng xuất mọi thiết bị (bấm vào tên trên thanh menu) |
+| Chuông thông báo | Báo khi tài liệu được duyệt, bị từ chối, bị xóa, có bình luận mới, hoặc báo cáo đã được xử lý |
 
 Các tab Hỏi đáp, Tóm tắt, Ôn tập và chế độ tìm "Ngữ nghĩa" chưa hoạt động: chúng cần AI service.
 
@@ -82,9 +96,11 @@ Các tab Hỏi đáp, Tóm tắt, Ôn tập và chế độ tìm "Ngữ nghĩa" 
 |---|---|
 | Tổng quan | Số tài liệu chờ duyệt, đã duyệt, người dùng, lượt tải; biểu đồ tài liệu đăng mới 7 ngày |
 | Kiểm duyệt | Xem PDF, duyệt, từ chối kèm lý do, xóa tài liệu đã từ chối |
+| Báo cáo | Xem báo cáo vi phạm của sinh viên, gỡ tài liệu kèm lý do hoặc bỏ qua |
 | Người dùng | Tìm kiếm, cấp hoặc bỏ quyền quản trị, khóa và mở khóa |
 | Môn học | Thêm, đổi tên, xóa |
-| Nhật ký | Ai đã duyệt, từ chối, xóa, khóa, đổi quyền, sửa môn học và đăng nhập trang quản trị lúc nào |
+| Nhật ký | Ai đã duyệt, từ chối, xóa, khóa, đổi quyền, sửa môn học, xóa bình luận, xử lý báo cáo và đăng nhập trang quản trị lúc nào |
+| Tài khoản | Đổi mật khẩu quản trị, đăng xuất mọi thiết bị |
 
 Khi triển khai thật, thêm địa chỉ của trang quản trị vào `CORS_ORIGIN` của backend.
 
@@ -99,8 +115,22 @@ Khi triển khai thật, thêm địa chỉ của trang quản trị vào `CORS_
 - Cảnh báo thông tin cá nhân: 30 trang đầu của PDF được quét email và số điện thoại; kết quả (đã che bớt) hiện cho người đăng và quản trị viên.
 - Trang quản trị tách riêng: chỉ tài khoản ADMIN đăng nhập được ở đó, phiên dùng cookie riêng (`admin_refresh_token`) nên không lẫn với phiên ở trang sinh viên. Tài khoản không phải admin nhận cùng thông báo "sai email hoặc mật khẩu" như khi nhập sai.
 - Mỗi request có token đều đọc lại tài khoản từ database: tài khoản bị khóa, bị hạ quyền hoặc bị xóa mất quyền ngay, không đợi token hết hạn.
+- Đổi mật khẩu phải nhập đúng mật khẩu hiện tại; đổi xong mọi phiên khác bị hủy ngay (xóa refresh token, và access token cấp trước mốc `tokensValidAfter` bị từ chối). "Đăng xuất mọi thiết bị" dùng cùng cơ chế.
+- Bình luận và báo cáo: chỉ trên tài liệu đã duyệt, cần đăng nhập; tối đa 20 bình luận/10 phút và 10 báo cáo/giờ mỗi người; không tự báo cáo tài liệu của mình, mỗi người một báo cáo đang mở cho mỗi tài liệu. Chỉ tác giả hoặc quản trị viên xóa được bình luận.
 - Nhật ký quản trị (bảng `admin_logs`): chỉ ghi thêm, không có API sửa hay xóa.
 - Refresh token hết hạn hoặc đã thu hồi được dọn tự động mỗi 6 giờ khi backend đang chạy.
+
+## Dữ liệu nằm ở đâu
+
+| Dữ liệu | Vị trí |
+|---|---|
+| Database MySQL | Docker volume `studymind-ai_mysql_data`, nằm trong ổ đĩa ảo của Docker Desktop chứ không phải thư mục trong dự án |
+| File PDF | `backend/uploads/` (tên file là UUID, không commit) |
+| Vector của phần AI (sau này) | Docker volume `studymind-ai_qdrant_data` |
+
+Xem dữ liệu: `npm run db:studio` trong `backend/`, hoặc nối MySQL Workbench / DBeaver tới `127.0.0.1:3307`, database `studymind`, tài khoản `studymind` (mật khẩu là `MYSQL_PASSWORD` trong `.env` ở thư mục gốc).
+
+`docker compose down` giữ nguyên dữ liệu. `docker compose down -v` hoặc xóa volume trong Docker Desktop sẽ xóa sạch database.
 
 ## Sao lưu MySQL
 

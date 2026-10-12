@@ -22,16 +22,21 @@ async function readUser(req: Request): Promise<AuthUser | undefined> {
   const token = req.headers.authorization?.replace(/^Bearer /, '')
   if (!token) return undefined
 
-  let id: number
+  let payload: { id: number; iat: number }
   try {
     // Cố định thuật toán để token ký bằng thuật toán khác bị từ chối
-    id = (jwt.verify(token, env.JWT_ACCESS_SECRET, { algorithms: ['HS256'] }) as unknown as AuthUser).id
+    payload = jwt.verify(token, env.JWT_ACCESS_SECRET, { algorithms: ['HS256'] }) as unknown as typeof payload
   } catch {
     throw invalidToken()
   }
 
-  const user = await prisma.user.findUnique({ where: { id }, select: { id: true, role: true, isLocked: true } })
+  const user = await prisma.user.findUnique({
+    where: { id: payload.id },
+    select: { id: true, role: true, isLocked: true, tokensValidAfter: true },
+  })
   if (!user) throw invalidToken()
+  // Token cấp trước lần đổi mật khẩu hoặc "đăng xuất mọi thiết bị" gần nhất không còn dùng được
+  if (user.tokensValidAfter && payload.iat * 1000 < user.tokensValidAfter.getTime()) throw invalidToken()
   if (user.isLocked) throw new HttpError(403, 'Tài khoản đã bị khóa')
   return { id: user.id, role: user.role }
 }

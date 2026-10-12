@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/auth.tsx'
+import NotificationBell from './NotificationBell.tsx'
 
 const NAV = [
   { to: '/documents', label: 'Thư viện' },
@@ -41,7 +42,10 @@ export default function Layout() {
 
           {user ? (
             <div className="ml-auto flex items-center gap-3">
-              <span className="hidden max-w-40 truncate font-mono text-xs sm:inline">{user.name}</span>
+              <NotificationBell userId={user.id} />
+              <Link to="/account" title="Tài khoản" className="link-wipe hidden max-w-40 truncate font-mono text-xs sm:inline">
+                {user.name}
+              </Link>
               <button onClick={logout} className="btn btn-sm whitespace-nowrap">
                 <span className="sm:hidden">Thoát</span>
                 <span className="hidden sm:inline">Đăng xuất</span>

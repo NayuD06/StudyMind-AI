@@ -1,9 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout.tsx'
+import AccountPage from './pages/AccountPage.tsx'
 import DashboardPage from './pages/DashboardPage.tsx'
 import LoginPage from './pages/LoginPage.tsx'
 import LogsPage from './pages/LogsPage.tsx'
 import ModerationPage from './pages/ModerationPage.tsx'
+import ReportsPage from './pages/ReportsPage.tsx'
 import SubjectsPage from './pages/SubjectsPage.tsx'
 import UsersPage from './pages/UsersPage.tsx'
 
@@ -14,9 +16,11 @@ export default function App() {
       <Route element={<Layout />}>
         <Route index element={<DashboardPage />} />
         <Route path="moderation" element={<ModerationPage />} />
+        <Route path="reports" element={<ReportsPage />} />
         <Route path="users" element={<UsersPage />} />
         <Route path="subjects" element={<SubjectsPage />} />
         <Route path="logs" element={<LogsPage />} />
+        <Route path="account" element={<AccountPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

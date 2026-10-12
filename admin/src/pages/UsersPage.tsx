@@ -58,7 +58,7 @@ export default function UsersPage() {
 
   return (
     <>
-      <PageHeader code="03 · NGƯỜI DÙNG" title="Người dùng">
+      <PageHeader code="04 · NGƯỜI DÙNG" title="Người dùng">
         <form onSubmit={search} className="flex gap-3">
           <input name="q" defaultValue={q} maxLength={100} placeholder="Tìm theo tên hoặc email" className="field w-64 py-2" />
           <button className="btn btn-sm">Tìm</button>

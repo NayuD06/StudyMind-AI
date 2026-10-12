@@ -26,6 +26,9 @@ const ACTIONS: Record<string, { label: string; tone: string }> = {
   SUBJECT_CREATE: { label: 'THÊM MÔN', tone: '' },
   SUBJECT_UPDATE: { label: 'SỬA MÔN', tone: '' },
   SUBJECT_DELETE: { label: 'XÓA MÔN', tone: 'bg-flame' },
+  COMMENT_DELETE: { label: 'XÓA BÌNH LUẬN', tone: 'bg-flame' },
+  REPORT_RESOLVE: { label: 'GỠ THEO BÁO CÁO', tone: 'bg-flame' },
+  REPORT_DISMISS: { label: 'BỎ QUA BÁO CÁO', tone: '' },
 }
 
 export default function LogsPage() {
@@ -42,7 +45,7 @@ export default function LogsPage() {
 
   return (
     <>
-      <PageHeader code="05 · NHẬT KÝ" title="Nhật ký quản trị">
+      <PageHeader code="06 · NHẬT KÝ" title="Nhật ký quản trị">
         <p className="max-w-xs text-right text-sm text-muted">Mọi thao tác của quản trị viên được ghi lại, không sửa hay xóa được.</p>
       </PageHeader>
 

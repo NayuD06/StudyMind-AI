@@ -7,9 +7,11 @@ import type { Stats } from '../pages/DashboardPage.tsx'
 const NAV = [
   { to: '/', label: 'Tổng quan', code: '01' },
   { to: '/moderation', label: 'Kiểm duyệt', code: '02' },
-  { to: '/users', label: 'Người dùng', code: '03' },
-  { to: '/subjects', label: 'Môn học', code: '04' },
-  { to: '/logs', label: 'Nhật ký', code: '05' },
+  { to: '/reports', label: 'Báo cáo', code: '03' },
+  { to: '/users', label: 'Người dùng', code: '04' },
+  { to: '/subjects', label: 'Môn học', code: '05' },
+  { to: '/logs', label: 'Nhật ký', code: '06' },
+  { to: '/account', label: 'Tài khoản', code: '07' },
 ]
 
 export default function Layout() {
@@ -20,7 +22,11 @@ export default function Layout() {
     queryFn: async () => (await api.get<Stats>('/admin/stats')).data,
     enabled: !!user,
   })
-  const pending = stats.data?.documents.pending ?? 0
+  // Số việc đang chờ xử lý, hiện cạnh mục tương ứng trên menu
+  const badges: Record<string, number> = {
+    '/moderation': stats.data?.documents.pending ?? 0,
+    '/reports': stats.data?.openReports ?? 0,
+  }
 
   if (loading) return null
   // Chỉ là điều hướng cho tiện; quyền thật sự do server kiểm tra ở mọi API /admin
@@ -42,9 +48,9 @@ export default function Layout() {
                 <span className="mr-3 hidden font-mono text-xs font-normal text-paper/50 md:inline">{item.code}</span>
                 {item.label}
               </span>
-              {item.to === '/moderation' && pending > 0 && (
-                <span key={pending} className="animate-pop bg-mark px-1.5 font-mono text-xs text-ink">
-                  {pending}
+              {badges[item.to] > 0 && (
+                <span key={badges[item.to]} className="animate-pop bg-mark px-1.5 font-mono text-xs text-ink">
+                  {badges[item.to]}
                 </span>
               )}
             </NavLink>

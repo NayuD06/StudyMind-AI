@@ -11,6 +11,9 @@ export type AdminAction =
   | 'SUBJECT_CREATE'
   | 'SUBJECT_UPDATE'
   | 'SUBJECT_DELETE'
+  | 'COMMENT_DELETE'
+  | 'REPORT_RESOLVE'
+  | 'REPORT_DISMISS'
 
 // Ghi lại ai đã làm gì. summary lưu luôn tên/email của đối tượng lúc đó,
 // để nhật ký vẫn đọc được sau khi đối tượng bị đổi tên hoặc xóa.

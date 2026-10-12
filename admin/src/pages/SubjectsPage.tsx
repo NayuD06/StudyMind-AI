@@ -48,7 +48,7 @@ export default function SubjectsPage() {
 
   return (
     <>
-      <PageHeader code="04 · MÔN HỌC" title="Môn học">
+      <PageHeader code="05 · MÔN HỌC" title="Môn học">
         <form onSubmit={add} className="flex gap-3">
           <input name="name" required minLength={2} maxLength={120} placeholder="Tên môn học mới" className="field w-64 py-2" />
           <button disabled={busy} className="btn btn-sm btn-ink">

@@ -5,6 +5,7 @@ import type { Document, Prisma } from '@prisma/client'
 import type { z } from 'zod'
 import { env } from '../../config/env.js'
 import { logAdminAction } from '../../lib/audit.js'
+import { notify } from '../../lib/notify.js'
 import { HttpError } from '../../lib/httpError.js'
 import { prisma } from '../../lib/prisma.js'
 import type { AuthUser } from '../../middlewares/auth.js'
@@ -57,7 +58,14 @@ async function withRatings<T extends { id: number }>(items: T[]) {
   return items.map((item) => ({ ...item, rating: byId.get(item.id) ?? { avg: 0, count: 0 } }))
 }
 
-async function findPublic(id: number) {
+export async function findViewable(id: number, user?: AuthUser) {
+  const document = await prisma.document.findUnique({ where: { id } })
+  if (!document) throw new HttpError(404, 'Không tìm thấy tài liệu')
+  assertCanView(document, user)
+  return document
+}
+
+export async function findPublic(id: number) {
   const document = await prisma.document.findUnique({ where: { id } })
   if (!document || !isPublic(document)) throw new HttpError(404, 'Không tìm thấy tài liệu')
   return document
@@ -210,7 +218,10 @@ export async function deleteDocument(id: number, user: AuthUser) {
 
   await prisma.document.delete({ where: { id } })
   await unlink(filePath(document.storageKey)).catch(() => {})
-  if (document.uploaderId !== user.id) await logAdminAction(user.id, 'DOCUMENT_DELETE', document.title)
+  if (document.uploaderId !== user.id) {
+    await logAdminAction(user.id, 'DOCUMENT_DELETE', document.title)
+    await notify(document.uploaderId, `Tài liệu "${document.title}" của bạn đã bị quản trị viên xóa.`)
+  }
 }
 
 // ----- Dành cho quản trị viên -----
@@ -239,6 +250,13 @@ export async function moderateDocument(id: number, input: z.infer<typeof moderat
     select: summary,
   })
   const approved = input.status === 'APPROVED'
+  await notify(
+    document.uploader.id,
+    approved
+      ? `Tài liệu "${document.title}" đã được duyệt và hiện trong thư viện.`
+      : `Tài liệu "${document.title}" bị từ chối. Lý do: ${input.reason}`,
+    id,
+  )
   await logAdminAction(
     admin.id,
     approved ? 'DOCUMENT_APPROVE' : 'DOCUMENT_REJECT',

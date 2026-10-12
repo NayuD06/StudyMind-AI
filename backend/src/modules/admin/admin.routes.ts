@@ -1,6 +1,13 @@
 import { Router } from 'express'
 import { requireAdmin, requireAuth } from '../../middlewares/auth.js'
-import { idParamSchema, moderateSchema, moderationQuerySchema } from '../documents/documents.schema.js'
+import {
+  idParamSchema,
+  moderateSchema,
+  moderationQuerySchema,
+  reportQuerySchema,
+  resolveReportSchema,
+} from '../documents/documents.schema.js'
+import * as reportsService from '../documents/reports.service.js'
 import * as documentsService from '../documents/documents.service.js'
 import { listLogsSchema, listUsersSchema, subjectSchema, updateUserSchema } from './admin.schema.js'
 import * as adminService from './admin.service.js'
@@ -23,6 +30,17 @@ adminRouter.patch('/documents/:id/moderation', async (req, res) => {
   const { id } = idParamSchema.parse(req.params)
   const document = await documentsService.moderateDocument(id, moderateSchema.parse(req.body), req.user!)
   res.json({ document })
+})
+
+adminRouter.get('/reports', async (req, res) => {
+  const { status } = reportQuerySchema.parse(req.query)
+  res.json({ items: await reportsService.listReports(status) })
+})
+
+adminRouter.patch('/reports/:id', async (req, res) => {
+  const { id } = idParamSchema.parse(req.params)
+  await reportsService.resolveReport(id, resolveReportSchema.parse(req.body), req.user!)
+  res.status(204).end()
 })
 
 adminRouter.get('/users', async (req, res) => {

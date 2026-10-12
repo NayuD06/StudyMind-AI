@@ -7,7 +7,7 @@ import { env } from '../../config/env.js'
 import { logAdminAction } from '../../lib/audit.js'
 import { HttpError } from '../../lib/httpError.js'
 import { prisma } from '../../lib/prisma.js'
-import type { loginSchema, registerSchema } from './auth.schema.js'
+import type { changePasswordSchema, loginSchema, registerSchema } from './auth.schema.js'
 
 const BCRYPT_COST = 12
 const ACCESS_TTL = '15m'
@@ -90,6 +90,35 @@ export async function logout(token: string | undefined) {
     where: { tokenHash: sha256(token), revokedAt: null },
     data: { revokedAt: new Date() },
   })
+}
+
+// Hủy mọi refresh token và làm mất hiệu lực mọi access token đã cấp trước mốc cutoff.
+// Xóa hẳn chứ không đánh dấu thu hồi: nếu chỉ thu hồi, thiết bị khác gửi token cũ lên sẽ bị coi là
+// token bị đánh cắp và kéo theo hủy luôn phiên mới vừa cấp.
+function endAllSessions(userId: number, cutoff: Date, passwordHash?: string) {
+  return prisma.$transaction([
+    prisma.user.update({ where: { id: userId }, data: { tokensValidAfter: cutoff, passwordHash } }),
+    prisma.refreshToken.deleteMany({ where: { userId } }),
+  ])
+}
+
+// Đổi mật khẩu xong thì mọi thiết bị khác bị đăng xuất; thiết bị đang dùng nhận phiên mới
+export async function changePassword(userId: number, input: z.infer<typeof changePasswordSchema>) {
+  const user = await prisma.user.findUnique({ where: { id: userId } })
+  if (!user || !(await bcrypt.compare(input.currentPassword, user.passwordHash))) {
+    throw new HttpError(400, 'Mật khẩu hiện tại không đúng')
+  }
+  if (input.newPassword === input.currentPassword) throw new HttpError(400, 'Mật khẩu mới phải khác mật khẩu hiện tại')
+
+  // iat của token tính theo giây: làm tròn xuống để token cấp ngay sau đây không bị chính mốc này loại
+  const cutoff = new Date(Math.floor(Date.now() / 1000) * 1000)
+  await endAllSessions(userId, cutoff, await bcrypt.hash(input.newPassword, BCRYPT_COST))
+  return startSession(user)
+}
+
+export async function logoutAll(userId: number) {
+  // Làm tròn lên để cả token cấp trong cùng giây này cũng bị loại
+  await endAllSessions(userId, new Date(Math.ceil(Date.now() / 1000) * 1000))
 }
 
 export async function getProfile(userId: number) {

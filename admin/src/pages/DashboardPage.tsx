@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import PageHeader, { ErrorNote } from '../components/PageHeader.tsx'
 import { api, errorMessage } from '../lib/api.ts'
 import { useCountUp } from '../lib/useCountUp.ts'
+import { locale, t } from '../lib/i18n.ts'
 
 export type Stats = {
   users: number
@@ -39,22 +40,22 @@ export default function DashboardPage() {
 
   return (
     <>
-      <PageHeader code="01 · TỔNG QUAN" title="Bảng điều khiển" />
+      <PageHeader code={t('01 · TỔNG QUAN')} title={t('Bảng điều khiển')} />
       {stats.isError && <ErrorNote message={errorMessage(stats.error)} />}
 
       {data && (
         <>
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-            <StatTile label="CHỜ DUYỆT" value={data.documents.pending} note="tài liệu cần xem" tone={data.documents.pending ? 'bg-mark' : ''} delay={0} />
-            <StatTile label="ĐÃ DUYỆT" value={data.documents.approved} note={`${data.documents.rejected} bị từ chối`} tone="" delay={70} />
-            <StatTile label="NGƯỜI DÙNG" value={data.users} note={`${data.lockedUsers} đang bị khóa`} tone="" delay={140} />
-            <StatTile label="LƯỢT TẢI" value={data.downloads} note={`${data.subjects} môn học`} tone="bg-ink text-paper" delay={210} />
+            <StatTile label={t('CHỜ DUYỆT')} value={data.documents.pending} note={t('tài liệu cần xem')} tone={data.documents.pending ? 'bg-mark' : ''} delay={0} />
+            <StatTile label={t('ĐÃ DUYỆT')} value={data.documents.approved} note={t('{0} bị từ chối', data.documents.rejected)} tone="" delay={70} />
+            <StatTile label={t('NGƯỜI DÙNG')} value={data.users} note={t('{0} đang bị khóa', data.lockedUsers)} tone="" delay={140} />
+            <StatTile label={t('LƯỢT TẢI')} value={data.downloads} note={t('{0} môn học', data.subjects)} tone="bg-ink text-paper" delay={210} />
           </div>
 
           <section className="panel mt-8 p-6">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 className="font-display text-xl font-bold">Tài liệu đăng mới</h2>
-              <p className="font-mono text-xs text-muted">7 NGÀY GẦN NHẤT</p>
+              <h2 className="font-display text-xl font-bold">{t('Tài liệu đăng mới')}</h2>
+              <p className="font-mono text-xs text-muted">{t('7 NGÀY GẦN NHẤT')}</p>
             </div>
 
             <div className="mt-6 flex h-48 items-end gap-2 border-b-2 border-ink sm:gap-4">
@@ -71,7 +72,7 @@ export default function DashboardPage() {
             <div className="mt-2 flex gap-2 sm:gap-4">
               {data.uploads.map((day) => (
                 <p key={day.date} className="flex-1 text-center font-mono text-xs text-muted">
-                  {new Date(day.date).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+                  {new Date(day.date).toLocaleDateString(locale, { day: '2-digit', month: '2-digit' })}
                 </p>
               ))}
             </div>
@@ -79,7 +80,7 @@ export default function DashboardPage() {
 
           {data.documents.pending > 0 && (
             <Link to="/moderation" className="btn btn-ink mt-8">
-              Duyệt {data.documents.pending} tài liệu đang chờ →
+              {t('Duyệt {0} tài liệu đang chờ →', data.documents.pending)}
             </Link>
           )}
         </>

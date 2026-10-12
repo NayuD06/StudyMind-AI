@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { api, errorMessage } from '../lib/api.ts'
 import { useAuth } from '../lib/auth.tsx'
 import { fetchSubjects } from '../lib/documents.ts'
+import { t } from '../lib/i18n.ts'
 
 const MAX_BYTES = 20 * 1024 * 1024
 
@@ -25,8 +26,8 @@ export default function UploadPage() {
   function pick(picked: File | undefined) {
     setError('')
     if (!picked) return
-    if (picked.type !== 'application/pdf') return setError('Chỉ nhận file PDF')
-    if (picked.size > MAX_BYTES) return setError('File vượt quá 20 MB')
+    if (picked.type !== 'application/pdf') return setError(t('Chỉ nhận file PDF'))
+    if (picked.size > MAX_BYTES) return setError(t('File vượt quá 20 MB'))
     setFile(picked)
   }
 
@@ -38,7 +39,7 @@ export default function UploadPage() {
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    if (!file) return setError('Chưa chọn file PDF')
+    if (!file) return setError(t('Chưa chọn file PDF'))
     const form = new FormData(e.currentTarget)
     form.set('file', file)
     setBusy(true)
@@ -56,9 +57,9 @@ export default function UploadPage() {
   if (!loading && !user) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20">
-        <h1 className="font-display text-4xl font-bold">Cần đăng nhập để đăng tài liệu</h1>
+        <h1 className="font-display text-4xl font-bold">{t('Cần đăng nhập để đăng tài liệu')}</h1>
         <Link to="/login" className="btn btn-ink mt-6">
-          Đăng nhập →
+          {t('Đăng nhập →')}
         </Link>
       </div>
     )
@@ -68,22 +69,22 @@ export default function UploadPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16">
         <div className="panel shadow-hard animate-pop p-8">
-          <p className="font-mono text-xs text-muted">/ ĐÃ GỬI · CHỜ DUYỆT</p>
+          <p className="font-mono text-xs text-muted">{t('/ ĐÃ GỬI · CHỜ DUYỆT')}</p>
           <h1 className="mt-2 font-display text-3xl font-bold">{result.document.title}</h1>
           <p className="mt-3 text-muted">
-            Tài liệu sẽ hiện trong thư viện sau khi quản trị viên duyệt. Bạn theo dõi trạng thái ở mục "Của tôi".
+            {t('Tài liệu sẽ hiện trong thư viện sau khi quản trị viên duyệt. Bạn theo dõi trạng thái ở mục "Của tôi".')}
           </p>
 
           {result.piiFindings.length > 0 && (
             <div className="mt-6 border-l-4 border-flame bg-mark/40 px-4 py-3">
-              <p className="font-display font-bold">Tài liệu có thể chứa thông tin cá nhân</p>
+              <p className="font-display font-bold">{t('Tài liệu có thể chứa thông tin cá nhân')}</p>
               <p className="mt-1 text-sm">
-                Hãy cân nhắc xóa các thông tin này rồi đăng lại nếu chúng không nên công khai.
+                {t('Hãy cân nhắc xóa các thông tin này rồi đăng lại nếu chúng không nên công khai.')}
               </p>
               <ul className="mt-3 space-y-1 font-mono text-xs">
                 {result.piiFindings.map((finding) => (
                   <li key={finding.sample}>
-                    {finding.type === 'email' ? 'Email' : 'Số điện thoại'} · trang {finding.page} · {finding.sample}
+                    {finding.type === 'email' ? 'Email' : t('Số điện thoại')} · {t('trang {0}', finding.page)} · {finding.sample}
                   </li>
                 ))}
               </ul>
@@ -92,7 +93,7 @@ export default function UploadPage() {
 
           <div className="mt-8 flex flex-wrap gap-4">
             <Link to="/me" className="btn btn-ink">
-              Xem tài liệu của tôi →
+              {t('Xem tài liệu của tôi →')}
             </Link>
             <button
               onClick={() => {
@@ -101,7 +102,7 @@ export default function UploadPage() {
               }}
               className="btn"
             >
-              Đăng tài liệu khác
+              {t('Đăng tài liệu khác')}
             </button>
           </div>
         </div>
@@ -111,9 +112,9 @@ export default function UploadPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <p className="font-mono text-xs text-muted">/ ĐĂNG TÀI LIỆU</p>
+      <p className="font-mono text-xs text-muted">{t('/ ĐĂNG TÀI LIỆU')}</p>
       <h1 className="mt-2 overflow-hidden pb-1 font-display text-5xl font-bold">
-        <span className="block animate-rise">Chia sẻ tài liệu</span>
+        <span className="block animate-rise">{t('Chia sẻ tài liệu')}</span>
       </h1>
 
       <form onSubmit={submit} className="mt-8 space-y-6">
@@ -138,37 +139,37 @@ export default function UploadPage() {
             </p>
           ) : (
             <>
-              <p className="font-display text-2xl font-bold">Kéo thả file PDF vào đây</p>
-              <p className="mt-2 text-muted">hoặc bấm để chọn file · tối đa 20 MB</p>
+              <p className="font-display text-2xl font-bold">{t('Kéo thả file PDF vào đây')}</p>
+              <p className="mt-2 text-muted">{t('hoặc bấm để chọn file · tối đa 20 MB')}</p>
             </>
           )}
         </label>
 
         <label className="block">
-          <span className="mb-1 block font-display font-bold">Tiêu đề</span>
+          <span className="mb-1 block font-display font-bold">{t('Tiêu đề')}</span>
           <input name="title" required minLength={3} maxLength={200} className="field" />
         </label>
 
         <div className="grid gap-6 sm:grid-cols-2">
           <label className="block">
-            <span className="mb-1 block font-display font-bold">Môn học</span>
+            <span className="mb-1 block font-display font-bold">{t('Môn học')}</span>
             <select name="subjectId" className="field" defaultValue="">
-              <option value="">Chưa chọn</option>
+              <option value="">{t('Chưa chọn')}</option>
               {subjects.data?.map((subject) => (
                 <option key={subject.id} value={subject.id}>
-                  {subject.name}
+                  {t(subject.name)}
                 </option>
               ))}
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block font-display font-bold">Trường</span>
+            <span className="mb-1 block font-display font-bold">{t('Trường')}</span>
             <input name="school" maxLength={120} className="field" />
           </label>
         </div>
 
         <label className="block">
-          <span className="mb-1 block font-display font-bold">Mô tả</span>
+          <span className="mb-1 block font-display font-bold">{t('Mô tả')}</span>
           <textarea name="description" rows={4} maxLength={2000} className="field" />
         </label>
 
@@ -179,7 +180,7 @@ export default function UploadPage() {
         )}
 
         <button disabled={busy} className="btn btn-flame disabled:opacity-60">
-          {busy ? 'Đang tải lên...' : 'Đăng tài liệu →'}
+          {busy ? t('Đang tải lên...') : t('Đăng tài liệu →')}
         </button>
       </form>
     </div>

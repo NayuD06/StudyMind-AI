@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
 import PageHeader, { ErrorNote } from '../components/PageHeader.tsx'
 import { api, errorMessage } from '../lib/api.ts'
+import { locale, t } from '../lib/i18n.ts'
 
 type Status = 'PENDING' | 'APPROVED' | 'REJECTED'
 
@@ -20,9 +21,9 @@ type ModerationItem = {
 }
 
 const TABS: { status: Status; label: string }[] = [
-  { status: 'PENDING', label: 'CHỜ DUYỆT' },
-  { status: 'APPROVED', label: 'ĐÃ DUYỆT' },
-  { status: 'REJECTED', label: 'TỪ CHỐI' },
+  { status: 'PENDING', label: t('CHỜ DUYỆT') },
+  { status: 'APPROVED', label: t('ĐÃ DUYỆT') },
+  { status: 'REJECTED', label: t('TỪ CHỐI') },
 ]
 
 const fileSize = (bytes: number) =>
@@ -83,7 +84,7 @@ export default function ModerationPage() {
 
   return (
     <>
-      <PageHeader code="02 · KIỂM DUYỆT" title="Kiểm duyệt tài liệu">
+      <PageHeader code={t('02 · KIỂM DUYỆT')} title={t('Kiểm duyệt tài liệu')}>
         <div className="flex border-2 border-ink font-display text-sm font-bold">
           {TABS.map((tab) => (
             <button
@@ -105,7 +106,7 @@ export default function ModerationPage() {
 
       <div className="space-y-4">
         {documents.data?.length === 0 && (
-          <div className="panel px-6 py-14 text-center text-muted">Không có tài liệu nào ở mục này.</div>
+          <div className="panel px-6 py-14 text-center text-muted">{t('Không có tài liệu nào ở mục này.')}</div>
         )}
 
         {documents.data?.map((doc, i) => (
@@ -114,8 +115,8 @@ export default function ModerationPage() {
               <div className="min-w-0">
                 <h2 className="font-display text-xl font-bold">{doc.title}</h2>
                 <p className="mt-1 font-mono text-xs break-all text-muted">
-                  {doc.fileName} · {doc.pageCount ?? '?'} trang · {fileSize(doc.fileSize)} · {doc.uploader.name} ·{' '}
-                  {new Date(doc.createdAt).toLocaleDateString('vi-VN')}
+                  {doc.fileName} · {t('{0} trang', doc.pageCount ?? '?')} · {fileSize(doc.fileSize)} · {doc.uploader.name} ·{' '}
+                  {new Date(doc.createdAt).toLocaleDateString(locale)}
                 </p>
                 {doc.subjects.length > 0 && (
                   <p className="mt-2 flex flex-wrap gap-2">
@@ -129,36 +130,36 @@ export default function ModerationPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 <button onClick={() => preview(doc.id)} className="btn btn-sm">
-                  Xem PDF
+                  {t('Xem PDF')}
                 </button>
                 {status !== 'APPROVED' && (
                   <button disabled={busy} onClick={() => moderate.mutate({ id: doc.id, status: 'APPROVED' })} className="btn btn-sm btn-ink">
-                    Duyệt
+                    {t('Duyệt')}
                   </button>
                 )}
                 {status !== 'REJECTED' && (
                   <button disabled={busy} onClick={() => setRejectingId(rejectingId === doc.id ? null : doc.id)} className="btn btn-sm btn-flame">
-                    Từ chối
+                    {t('Từ chối')}
                   </button>
                 )}
                 {status === 'REJECTED' && (
                   <button
                     disabled={busy}
-                    onClick={() => window.confirm(`Xóa hẳn "${doc.title}"? Không khôi phục được.`) && remove.mutate(doc.id)}
+                    onClick={() => window.confirm(t('Xóa hẳn "{0}"? Không khôi phục được.', doc.title)) && remove.mutate(doc.id)}
                     className="btn btn-sm btn-flame"
                   >
-                    Xóa
+                    {t('Xóa')}
                   </button>
                 )}
               </div>
             </div>
 
             {doc.description && <p className="mt-3 text-sm">{doc.description}</p>}
-            {doc.rejectReason && <p className="mt-3 text-sm">Lý do từ chối: {doc.rejectReason}</p>}
+            {doc.rejectReason && <p className="mt-3 text-sm">{t('Lý do từ chối:')} {doc.rejectReason}</p>}
 
             {doc.piiFindings && doc.piiFindings.length > 0 && (
               <div className="mt-4 border-l-4 border-flame bg-mark/40 px-3 py-2">
-                <p className="font-display text-sm font-bold">Có thể chứa thông tin cá nhân</p>
+                <p className="font-display text-sm font-bold">{t('Có thể chứa thông tin cá nhân')}</p>
                 <p className="mt-1 font-mono text-xs">
                   {doc.piiFindings.map((finding) => `${finding.sample} (tr. ${finding.page})`).join(' · ')}
                 </p>
@@ -167,9 +168,9 @@ export default function ModerationPage() {
 
             {rejectingId === doc.id && (
               <form onSubmit={(e) => reject(e, doc.id)} className="mt-4 flex animate-pop flex-wrap gap-3 border-t-2 border-dashed border-ink pt-4">
-                <input name="reason" required maxLength={500} autoFocus placeholder="Lý do từ chối (người đăng sẽ thấy)" className="field min-w-0 flex-1" />
+                <input name="reason" required maxLength={500} autoFocus placeholder={t('Lý do từ chối (người đăng sẽ thấy)')} className="field min-w-0 flex-1" />
                 <button disabled={busy} className="btn btn-flame">
-                  Xác nhận từ chối
+                  {t('Xác nhận từ chối')}
                 </button>
               </form>
             )}

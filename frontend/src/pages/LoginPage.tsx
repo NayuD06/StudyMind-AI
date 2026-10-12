@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import AuthShell from '../components/AuthShell.tsx'
 import { errorMessage } from '../lib/api.ts'
 import { useAuth } from '../lib/auth.tsx'
+import { t } from '../lib/i18n.ts'
 
 export default function LoginPage() {
   const { login } = useAuth()
@@ -26,14 +27,14 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthShell kicker="/ ĐĂNG NHẬP" title="Chào mừng" highlight="quay lại.">
+    <AuthShell kicker={t('/ ĐĂNG NHẬP')} title={t('Chào mừng')} highlight={t('quay lại.')}>
       <form onSubmit={submit} className="space-y-5">
         <label className="block">
           <span className="mb-1 block font-display font-bold">Email</span>
           <input name="email" type="email" required autoComplete="email" className="field" />
         </label>
         <label className="block">
-          <span className="mb-1 block font-display font-bold">Mật khẩu</span>
+          <span className="mb-1 block font-display font-bold">{t('Mật khẩu')}</span>
           <input name="password" type="password" required autoComplete="current-password" className="field" />
         </label>
         {error && (
@@ -42,12 +43,12 @@ export default function LoginPage() {
           </p>
         )}
         <button disabled={busy} className="btn btn-ink w-full disabled:opacity-60">
-          {busy ? 'Đang đăng nhập...' : 'Đăng nhập →'}
+          {busy ? t('Đang đăng nhập...') : t('Đăng nhập →')}
         </button>
         <p className="text-sm text-muted">
-          Chưa có tài khoản?{' '}
+          {t('Chưa có tài khoản?')}{' '}
           <Link to="/register" className="link-wipe font-medium text-ink">
-            Đăng ký
+            {t('Đăng ký')}
           </Link>
         </p>
       </form>

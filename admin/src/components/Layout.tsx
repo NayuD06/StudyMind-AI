@@ -3,15 +3,17 @@ import { Navigate, NavLink, Outlet } from 'react-router-dom'
 import { api } from '../lib/api.ts'
 import { useAuth } from '../lib/auth.tsx'
 import type { Stats } from '../pages/DashboardPage.tsx'
+import Prefs from './Prefs.tsx'
+import { t } from '../lib/i18n.ts'
 
 const NAV = [
-  { to: '/', label: 'Tổng quan', code: '01' },
-  { to: '/moderation', label: 'Kiểm duyệt', code: '02' },
-  { to: '/reports', label: 'Báo cáo', code: '03' },
-  { to: '/users', label: 'Người dùng', code: '04' },
-  { to: '/subjects', label: 'Môn học', code: '05' },
-  { to: '/logs', label: 'Nhật ký', code: '06' },
-  { to: '/account', label: 'Tài khoản', code: '07' },
+  { to: '/', label: t('Tổng quan'), code: '01' },
+  { to: '/moderation', label: t('Kiểm duyệt'), code: '02' },
+  { to: '/reports', label: t('Báo cáo'), code: '03' },
+  { to: '/users', label: t('Người dùng'), code: '04' },
+  { to: '/subjects', label: t('Môn học'), code: '05' },
+  { to: '/logs', label: t('Nhật ký'), code: '06' },
+  { to: '/account', label: t('Tài khoản'), code: '07' },
 ]
 
 export default function Layout() {
@@ -34,7 +36,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen md:grid md:grid-cols-[15rem_1fr]">
-      <aside className="flex flex-col border-b-2 border-ink bg-ink text-paper md:sticky md:top-0 md:h-screen md:border-r-2 md:border-b-0">
+      <aside className="surface-dark flex flex-col border-b-2 border-ink bg-ink text-paper md:sticky md:top-0 md:h-screen md:border-r-2 md:border-b-0">
         <div className="flex items-center gap-2 px-5 py-5 font-display text-lg font-bold">
           <span className="grid size-7 place-items-center bg-mark text-sm text-ink">S</span>
           STUDYMIND
@@ -57,7 +59,8 @@ export default function Layout() {
           ))}
         </nav>
 
-        <div className="flex items-center justify-between gap-3 px-5 py-4 md:mt-auto md:block">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 md:mt-auto md:block">
+          <Prefs onDark className="order-last md:mb-4" />
           <div className="min-w-0">
             <p className="truncate font-display font-bold">{user.name}</p>
             <p className="truncate font-mono text-xs text-paper/60">{user.email}</p>
@@ -66,7 +69,7 @@ export default function Layout() {
             onClick={logout}
             className="shrink-0 border-2 border-paper px-3 py-1.5 font-display text-sm font-bold transition-colors hover:bg-flame hover:text-ink md:mt-4 md:w-full"
           >
-            Đăng xuất
+            {t('Đăng xuất')}
           </button>
         </div>
       </aside>

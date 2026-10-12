@@ -5,6 +5,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css'
 import 'react-pdf/dist/Page/TextLayer.css'
 import { errorMessage } from '../lib/api.ts'
 import { fetchFile } from '../lib/documents.ts'
+import { t } from '../lib/i18n.ts'
 
 // Phải đặt worker ngay trong file dùng <Document>, nếu không react-pdf ghi đè bằng giá trị mặc định
 pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
@@ -45,41 +46,41 @@ export default function PdfViewer({ docId }: { docId: number }) {
   return (
     <div className="panel shadow-hard flex flex-col">
       <div className="flex items-center gap-2 border-b-2 border-ink px-3 py-2 font-mono text-xs">
-        <button onClick={() => go(page - 1)} disabled={page <= 1} aria-label="Trang trước" className="border-2 border-ink px-2 py-1 transition-colors hover:bg-mark disabled:opacity-30">
+        <button onClick={() => go(page - 1)} disabled={page <= 1} aria-label={t('Trang trước')} className="border-2 border-ink px-2 py-1 transition-colors hover:bg-mark disabled:opacity-30">
           ←
         </button>
         <input
           value={page}
           onChange={(e) => go(Number(e.target.value.replace(/\D/g, '')) || 1)}
           inputMode="numeric"
-          aria-label="Số trang"
+          aria-label={t('Số trang')}
           className="w-12 border-2 border-ink bg-sheet py-1 text-center outline-none focus:bg-mark"
         />
         <span className="text-muted">/ {pages || '?'}</span>
-        <button onClick={() => go(page + 1)} disabled={page >= pages} aria-label="Trang sau" className="border-2 border-ink px-2 py-1 transition-colors hover:bg-mark disabled:opacity-30">
+        <button onClick={() => go(page + 1)} disabled={page >= pages} aria-label={t('Trang sau')} className="border-2 border-ink px-2 py-1 transition-colors hover:bg-mark disabled:opacity-30">
           →
         </button>
 
         <div className="ml-auto flex items-center gap-2">
-          <button onClick={() => step(-1)} disabled={zoom === ZOOMS[0]} aria-label="Thu nhỏ" className="border-2 border-ink px-2 py-1 transition-colors hover:bg-mark disabled:opacity-30">
+          <button onClick={() => step(-1)} disabled={zoom === ZOOMS[0]} aria-label={t('Thu nhỏ')} className="border-2 border-ink px-2 py-1 transition-colors hover:bg-mark disabled:opacity-30">
             −
           </button>
           <span className="w-10 text-center">{Math.round(zoom * 100)}%</span>
-          <button onClick={() => step(1)} disabled={zoom === ZOOMS.at(-1)} aria-label="Phóng to" className="border-2 border-ink px-2 py-1 transition-colors hover:bg-mark disabled:opacity-30">
+          <button onClick={() => step(1)} disabled={zoom === ZOOMS.at(-1)} aria-label={t('Phóng to')} className="border-2 border-ink px-2 py-1 transition-colors hover:bg-mark disabled:opacity-30">
             +
           </button>
         </div>
       </div>
 
       <div ref={frame} className="max-h-[80vh] min-h-[28rem] overflow-auto bg-paper">
-        {file.isPending && <Note text="ĐANG TẢI FILE..." />}
+        {file.isPending && <Note text={t('ĐANG TẢI FILE...')} />}
         {file.isError && <Note text={errorMessage(file.error)} />}
         {file.data && width > 0 && (
           <Document
             file={file.data}
             onLoadSuccess={(pdf) => setPages(pdf.numPages)}
-            loading={<Note text="ĐANG MỞ PDF..." />}
-            error={<Note text="Không mở được file PDF này." />}
+            loading={<Note text={t('ĐANG MỞ PDF...')} />}
+            error={<Note text={t('Không mở được file PDF này.')} />}
           >
             <Page key={page} pageNumber={page} width={width * zoom} loading={<Note text={`TRANG ${page}...`} />} className="animate-pop" />
           </Document>

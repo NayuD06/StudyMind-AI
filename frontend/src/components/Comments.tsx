@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { api, errorMessage } from '../lib/api.ts'
 import { useAuth } from '../lib/auth.tsx'
+import { locale, t } from '../lib/i18n.ts'
 
 type Comment = { id: number; content: string; createdAt: string; user: { id: number; name: string } }
 type CommentList = { items: Comment[]; total: number }
@@ -44,7 +45,7 @@ export default function Comments({ docId, canPost }: { docId: number; canPost: b
   return (
     <section className="panel shadow-hard">
       <h2 className="border-b-2 border-ink px-5 py-3 font-display font-bold">
-        Bình luận <span className="font-mono text-xs font-normal text-muted">{comments.data?.total ?? ''}</span>
+        {t('Bình luận')} <span className="font-mono text-xs font-normal text-muted">{comments.data?.total ?? ''}</span>
       </h2>
 
       {canPost &&
@@ -55,8 +56,8 @@ export default function Comments({ docId, canPost }: { docId: number; canPost: b
               onChange={(e) => setText(e.target.value)}
               rows={3}
               maxLength={MAX}
-              placeholder="Tài liệu này có giúp bạn không? Chỗ nào cần lưu ý?"
-              aria-label="Viết bình luận"
+              placeholder={t('Tài liệu này có giúp bạn không? Chỗ nào cần lưu ý?')}
+              aria-label={t('Viết bình luận')}
               className="field"
             />
             <div className="mt-3 flex items-center justify-between gap-4">
@@ -64,16 +65,16 @@ export default function Comments({ docId, canPost }: { docId: number; canPost: b
                 {text.length}/{MAX}
               </span>
               <button disabled={add.isPending || !text.trim()} className="btn btn-sm btn-ink disabled:opacity-50">
-                {add.isPending ? 'Đang gửi...' : 'Gửi bình luận'}
+                {add.isPending ? t('Đang gửi...') : t('Gửi bình luận')}
               </button>
             </div>
           </form>
         ) : (
           <p className="border-b-2 border-ink px-5 py-4 text-sm text-muted">
             <Link to="/login" className="underline">
-              Đăng nhập
+              {t('Đăng nhập')}
             </Link>{' '}
-            để viết bình luận.
+            {t('để viết bình luận.')}
           </p>
         ))}
 
@@ -88,14 +89,14 @@ export default function Comments({ docId, canPost }: { docId: number; canPost: b
           <li key={comment.id} className="animate-pop border-ink px-5 py-4 not-last:border-b-2">
             <p className="flex items-baseline gap-3">
               <span className="font-display font-bold">{comment.user.name}</span>
-              <span className="font-mono text-xs text-muted">{new Date(comment.createdAt).toLocaleString('vi-VN')}</span>
+              <span className="font-mono text-xs text-muted">{new Date(comment.createdAt).toLocaleString(locale)}</span>
               {(user?.id === comment.user.id || user?.role === 'ADMIN') && (
                 <button
                   onClick={() => remove.mutate(comment.id)}
                   disabled={remove.isPending}
                   className="link-wipe ml-auto font-mono text-xs text-muted hover:text-ink"
                 >
-                  XÓA
+                  {t('XÓA')}
                 </button>
               )}
             </p>
@@ -104,7 +105,7 @@ export default function Comments({ docId, canPost }: { docId: number; canPost: b
         ))}
       </ul>
 
-      {comments.data?.items.length === 0 && <p className="px-5 py-8 text-center text-sm text-muted">Chưa có bình luận nào.</p>}
+      {comments.data?.items.length === 0 && <p className="px-5 py-8 text-center text-sm text-muted">{t('Chưa có bình luận nào.')}</p>}
       {comments.isError && <p className="px-5 py-8 text-center text-sm text-muted">{errorMessage(comments.error)}</p>}
     </section>
   )

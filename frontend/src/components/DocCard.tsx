@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { ratingText, subjectCode, subjectName, type DocSummary } from '../lib/documents.ts'
+import { t } from '../lib/i18n.ts'
 
 export default function DocCard({ doc }: { doc: DocSummary }) {
   return (
@@ -17,15 +18,15 @@ export default function DocCard({ doc }: { doc: DocSummary }) {
 
       <div className="flex-1 px-4 py-5">
         <h3 className="line-clamp-3 font-display text-xl leading-snug font-bold">{doc.title}</h3>
-        <p className="mt-2 text-sm text-muted">{subjectName(doc) ?? 'Chưa phân môn'}</p>
+        <p className="mt-2 text-sm text-muted">{subjectName(doc) ?? t('Chưa phân môn')}</p>
       </div>
 
       <div className="flex items-center gap-4 border-t-2 border-ink px-4 py-2 font-mono text-xs">
-        <span>{doc.pageCount ?? '?'} tr.</span>
+        <span>{t('{0} tr.', doc.pageCount ?? '?')}</span>
         <span>★ {ratingText(doc.rating)}</span>
         <span>↓ {doc.downloadCount}</span>
         <span className="ml-auto -translate-x-2 opacity-0 transition duration-200 group-hover:translate-x-0 group-hover:opacity-100">
-          XEM →
+          {t('XEM →')}
         </span>
       </div>
     </Link>

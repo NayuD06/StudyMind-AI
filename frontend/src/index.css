@@ -1,5 +1,8 @@
 @import 'tailwindcss';
 
+/* dark:... áp dụng khi <html data-theme="dark"> */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
 @theme {
   --font-display: 'Space Grotesk', 'Be Vietnam Pro', sans-serif;
   --font-sans: 'Be Vietnam Pro', system-ui, sans-serif;
@@ -8,6 +11,8 @@
   --color-paper: #f4f1e8;
   --color-sheet: #fffdf7;
   --color-ink: #15140f;
+  /* Đen cố định, không đổi theo giao diện: chữ trên nền vàng/cam */
+  --color-coal: #15140f;
   --color-muted: #6b675c;
   --color-mark: #ffe24a;
   --color-flame: #ff4f2e;
@@ -55,8 +60,8 @@ body {
   background-color: var(--color-paper);
   /* Lưới kẻ ô mờ như giấy vở */
   background-image:
-    linear-gradient(to right, rgb(21 20 15 / 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(21 20 15 / 0.05) 1px, transparent 1px);
+    linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
   background-size: 32px 32px;
   color: var(--color-ink);
   font-family: var(--font-sans);
@@ -64,7 +69,7 @@ body {
 
 ::selection {
   background: var(--color-mark);
-  color: var(--color-ink);
+  color: var(--color-coal);
 }
 
 @layer components {
@@ -76,6 +81,7 @@ body {
     gap: 0.5rem;
     border: 2px solid var(--color-ink);
     background: var(--color-sheet);
+    color: var(--color-ink);
     padding: 0.7rem 1.2rem;
     font-family: var(--font-display);
     font-weight: 700;
@@ -113,6 +119,7 @@ body {
   .panel {
     border: 2px solid var(--color-ink);
     background: var(--color-sheet);
+    color: var(--color-ink);
   }
   .shadow-hard {
     box-shadow: 6px 6px 0 var(--color-ink);
@@ -163,6 +170,7 @@ body {
     width: 100%;
     border: 2px solid var(--color-ink);
     background: var(--color-sheet);
+    color: var(--color-ink);
     padding: 0.7rem 0.9rem;
     outline: none;
     transition: box-shadow 0.15s;
@@ -174,6 +182,52 @@ body {
   .text-outline {
     color: transparent;
     -webkit-text-stroke: 1.5px var(--color-paper);
+  }
+}
+
+/* ---------- Giao diện tối ----------
+   <html data-theme="dark"> do đoạn script trong index.html gắn trước khi vẽ trang (xem lib/theme.ts).
+   Đổi bốn màu nền/chữ là đủ; vàng và cam giữ nguyên. */
+:root {
+  color-scheme: light;
+  --grid-line: rgb(21 20 15 / 0.05);
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-paper: #131210;
+  --color-sheet: #1d1b16;
+  --color-ink: #f1ede0;
+  --color-muted: #a39e8f;
+  --grid-line: rgb(241 237 224 / 0.045);
+}
+
+/* Khối nền đen lớn (chân trang, thanh bên...): ở giao diện tối vẫn giữ nền tối chữ sáng thay vì đảo thành khối trắng */
+[data-theme='dark'] .surface-dark {
+  --color-ink: #262319;
+  --color-paper: #f1ede0;
+}
+
+/* Nền vàng/cam luôn đi với chữ đen, kể cả khi chữ xung quanh đã chuyển sáng */
+[data-theme='dark']
+  :is(.bg-mark, .bg-flame, .btn-flame, .mark, .hover\:bg-mark:hover, .hover\:bg-flame:hover, .focus\:bg-mark:focus, .group:hover .group-hover\:bg-mark) {
+  color: var(--color-coal);
+}
+[data-theme='dark'] :is(.bg-mark, .bg-flame) .text-muted {
+  color: #5c574a;
+}
+
+/* Đổi giao diện: màn mới quét từ trên xuống, mép cắt thẳng */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  animation: theme-wipe 0.5s cubic-bezier(0.6, 0, 0.2, 1);
+}
+@keyframes theme-wipe {
+  from {
+    clip-path: inset(0 0 100% 0);
   }
 }
 

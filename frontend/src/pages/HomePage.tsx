@@ -6,25 +6,26 @@ import Marquee from '../components/Marquee.tsx'
 import Reveal from '../components/Reveal.tsx'
 import { fetchDocuments, fetchSubjects } from '../lib/documents.ts'
 import { useTypewriter } from '../lib/useTypewriter.ts'
+import { t } from '../lib/i18n.ts'
 
 const SAMPLE_QUERIES = [
-  'tài liệu ôn thi cơ sở dữ liệu',
-  'làm sao biết lịch biểu khả tuần tự?',
-  'giải thích thuật toán A* dễ hiểu',
-  'đề cương mạng máy tính tầng giao vận',
+  t('tài liệu ôn thi cơ sở dữ liệu'),
+  t('làm sao biết lịch biểu khả tuần tự?'),
+  t('giải thích thuật toán A* dễ hiểu'),
+  t('đề cương mạng máy tính tầng giao vận'),
 ]
 
 // Chạy trên dải chữ khi chưa tải được danh sách môn
-const TOPICS = ['Tìm kiếm ngữ nghĩa', 'Hỏi đáp có trích dẫn', 'Tóm tắt tài liệu', 'Câu hỏi ôn tập']
+const TOPICS = [t('Tìm kiếm ngữ nghĩa'), t('Hỏi đáp có trích dẫn'), t('Tóm tắt tài liệu'), t('Câu hỏi ôn tập')]
 
-const HEADLINE = ['Hỏi tài liệu.', 'Nhận câu trả lời']
+const HEADLINE = [t('Hỏi tài liệu.'), t('Nhận câu trả lời')]
 
 const STEPS = [
-  { title: 'Tải tài liệu PDF', text: 'Kiểm tra tệp và lưu thông tin tài liệu.' },
-  { title: 'Trích xuất văn bản', text: 'Đọc nội dung, chia thành các đoạn nhỏ.' },
-  { title: 'Tạo embedding', text: 'Chuyển từng đoạn thành vector ngữ nghĩa.' },
-  { title: 'Tìm đoạn liên quan', text: 'Xếp hạng theo độ tương đồng với câu hỏi.' },
-  { title: 'Trả lời có căn cứ', text: 'Sinh câu trả lời kèm số trang trích dẫn.' },
+  { title: t('Tải tài liệu PDF'), text: t('Kiểm tra tệp và lưu thông tin tài liệu.') },
+  { title: t('Trích xuất văn bản'), text: t('Đọc nội dung, chia thành các đoạn nhỏ.') },
+  { title: t('Tạo embedding'), text: t('Chuyển từng đoạn thành vector ngữ nghĩa.') },
+  { title: t('Tìm đoạn liên quan'), text: t('Xếp hạng theo độ tương đồng với câu hỏi.') },
+  { title: t('Trả lời có căn cứ'), text: t('Sinh câu trả lời kèm số trang trích dẫn.') },
 ]
 
 export default function HomePage() {
@@ -58,7 +59,7 @@ export default function HomePage() {
         <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-16 lg:grid-cols-[1.15fr_1fr] lg:py-24">
           <div>
             <p className="mb-6 inline-block animate-pop border-2 border-ink bg-sheet px-3 py-1 font-mono text-xs">
-              TÌM KIẾM NGỮ NGHĨA × RAG
+              {t('TÌM KIẾM NGỮ NGHĨA × RAG')}
             </p>
 
             <h1 className="font-display text-5xl leading-[1.05] font-bold sm:text-6xl lg:text-7xl">
@@ -71,14 +72,13 @@ export default function HomePage() {
               ))}
               <span className="block overflow-hidden pb-2">
                 <span className="block animate-rise" style={{ animationDelay: '240ms' }}>
-                  có <span className="mark">trích dẫn</span>.
+                  {t('có')} <span className="mark">{t('trích dẫn')}</span>.
                 </span>
               </span>
             </h1>
 
             <p className="mt-6 max-w-xl animate-pop text-lg text-muted" style={{ animationDelay: '500ms' }}>
-              Chia sẻ tài liệu học tập, tìm bằng câu hỏi tự nhiên và nhờ AI giải thích dựa trên chính nội dung
-              tài liệu đó.
+              {t('Chia sẻ tài liệu học tập, tìm bằng câu hỏi tự nhiên và nhờ AI giải thích dựa trên chính nội dung tài liệu đó.')}
             </p>
 
             <form
@@ -90,7 +90,7 @@ export default function HomePage() {
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  aria-label="Tìm tài liệu"
+                  aria-label={t('Tìm tài liệu')}
                   className="h-full w-full border-2 border-r-0 border-ink bg-sheet px-4 py-4 outline-none"
                 />
                 {!query && (
@@ -101,16 +101,16 @@ export default function HomePage() {
                 )}
               </div>
               <button className="border-2 border-ink bg-ink px-6 font-display font-bold text-paper transition-colors hover:bg-flame hover:text-ink">
-                TÌM
+                {t('TÌM')}
               </button>
             </form>
 
             <div className="mt-8 flex flex-wrap gap-4">
               <Link to="/documents" className="btn btn-ink">
-                Vào thư viện →
+                {t('Vào thư viện →')}
               </Link>
               <Link to="/upload" className="btn">
-                Đăng tài liệu
+                {t('Đăng tài liệu')}
               </Link>
             </div>
           </div>
@@ -122,22 +122,22 @@ export default function HomePage() {
             <div className="panel relative">
               <div className="flex items-center justify-between border-b-2 border-ink px-4 py-2 font-mono text-xs">
                 <span className="truncate">CSDL_GiaoTac.pdf</span>
-                <span className="text-muted">tr. 42/118</span>
+                <span className="text-muted">{t('tr. 42/118')}</span>
               </div>
               <div className="space-y-4 p-5">
                 <p
                   className="ml-auto w-fit max-w-[85%] animate-pop bg-ink px-3 py-2 text-sm text-paper"
                   style={{ animationDelay: '900ms' }}
                 >
-                  Làm sao biết một lịch biểu khả tuần tự?
+                  {t('Làm sao biết một lịch biểu khả tuần tự?')}
                 </p>
                 <div className="animate-pop border-l-4 border-flame pl-3 text-sm" style={{ animationDelay: '1500ms' }}>
                   <p>
-                    Vẽ <b>đồ thị ưu tiên</b> của lịch biểu. Nếu đồ thị <span className="bg-mark px-1">không có chu trình</span>{' '}
-                    thì lịch biểu khả tuần tự xung đột.
+                    {t('Vẽ')} <b>{t('đồ thị ưu tiên')}</b> {t('của lịch biểu. Nếu đồ thị')} <span className="bg-mark px-1">{t('không có chu trình')}</span>{' '}
+                    {t('thì lịch biểu khả tuần tự xung đột.')}
                   </p>
                   <div className="mt-3 flex gap-2 font-mono text-xs">
-                    {['tr. 42', 'tr. 45'].map((page, i) => (
+                    {[t('tr. 42'), t('tr. 45')].map((page, i) => (
                       <span
                         key={page}
                         className="animate-pop border-2 border-ink px-2 py-0.5 transition-colors hover:bg-ink hover:text-paper"
@@ -154,12 +154,12 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Marquee items={subjects.data?.length ? subjects.data.map((subject) => subject.name) : TOPICS} />
+      <Marquee items={subjects.data?.length ? subjects.data.map((subject) => t(subject.name)) : TOPICS} />
 
       <section className="mx-auto max-w-6xl px-4 py-20">
         <Reveal>
-          <p className="font-mono text-xs text-muted">/ CÁCH HOẠT ĐỘNG</p>
-          <h2 className="mt-2 font-display text-4xl font-bold">Từ file PDF đến câu trả lời</h2>
+          <p className="font-mono text-xs text-muted">{t('/ CÁCH HOẠT ĐỘNG')}</p>
+          <h2 className="mt-2 font-display text-4xl font-bold">{t('Từ file PDF đến câu trả lời')}</h2>
         </Reveal>
 
         <div className="mt-10 grid border-2 border-ink bg-sheet sm:grid-cols-2 lg:grid-cols-5">
@@ -180,19 +180,19 @@ export default function HomePage() {
       <section className="mx-auto max-w-6xl px-4 pb-20">
         <Reveal className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="font-mono text-xs text-muted">/ TÀI LIỆU NỔI BẬT</p>
-            <h2 className="mt-2 font-display text-4xl font-bold">Đang được tải nhiều</h2>
+            <p className="font-mono text-xs text-muted">{t('/ TÀI LIỆU NỔI BẬT')}</p>
+            <h2 className="mt-2 font-display text-4xl font-bold">{t('Đang được tải nhiều')}</h2>
           </div>
           <Link to="/documents" className="link-wipe font-display font-bold">
-            Xem tất cả →
+            {t('Xem tất cả →')}
           </Link>
         </Reveal>
 
         {featured.data?.items.length === 0 ? (
           <div className="panel mt-10 px-6 py-12 text-center">
-            <p className="font-display text-2xl font-bold">Thư viện đang chờ tài liệu đầu tiên</p>
+            <p className="font-display text-2xl font-bold">{t('Thư viện đang chờ tài liệu đầu tiên')}</p>
             <Link to="/upload" className="btn btn-flame mt-6">
-              Đăng tài liệu →
+              {t('Đăng tài liệu →')}
             </Link>
           </div>
         ) : (
@@ -209,10 +209,10 @@ export default function HomePage() {
       <section className="border-t-2 border-ink bg-flame">
         <Reveal className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-6 px-4 py-14">
           <h2 className="max-w-2xl font-display text-3xl font-bold sm:text-4xl">
-            Có tài liệu hay? Đăng lên để cả lớp cùng ôn.
+            {t('Có tài liệu hay? Đăng lên để cả lớp cùng ôn.')}
           </h2>
           <Link to="/register" className="btn">
-            Tạo tài khoản →
+            {t('Tạo tài khoản →')}
           </Link>
         </Reveal>
       </section>

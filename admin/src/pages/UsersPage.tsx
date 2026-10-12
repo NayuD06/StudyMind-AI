@@ -3,6 +3,7 @@ import { useState, type FormEvent } from 'react'
 import PageHeader, { ErrorNote } from '../components/PageHeader.tsx'
 import { api, errorMessage } from '../lib/api.ts'
 import { useAuth } from '../lib/auth.tsx'
+import { locale, t } from '../lib/i18n.ts'
 
 type Role = 'STUDENT' | 'ADMIN'
 
@@ -48,8 +49,8 @@ export default function UsersPage() {
   function toggleRole(row: UserRow) {
     const toAdmin = row.role !== 'ADMIN'
     const question = toAdmin
-      ? `Cấp quyền quản trị cho ${row.email}? Người này sẽ duyệt được tài liệu và quản lý người dùng.`
-      : `Bỏ quyền quản trị của ${row.email}?`
+      ? t('Cấp quyền quản trị cho {0}? Người này sẽ duyệt được tài liệu và quản lý người dùng.', row.email)
+      : t('Bỏ quyền quản trị của {0}?', row.email)
     if (window.confirm(question)) update.mutate({ id: row.id, role: toAdmin ? 'ADMIN' : 'STUDENT' })
   }
 
@@ -58,10 +59,10 @@ export default function UsersPage() {
 
   return (
     <>
-      <PageHeader code="04 · NGƯỜI DÙNG" title="Người dùng">
+      <PageHeader code={t('04 · NGƯỜI DÙNG')} title={t('Người dùng')}>
         <form onSubmit={search} className="flex gap-3">
-          <input name="q" defaultValue={q} maxLength={100} placeholder="Tìm theo tên hoặc email" className="field w-64 py-2" />
-          <button className="btn btn-sm">Tìm</button>
+          <input name="q" defaultValue={q} maxLength={100} placeholder={t('Tìm theo tên hoặc email')} className="field w-64 py-2" />
+          <button className="btn btn-sm">{t('Tìm')}</button>
         </form>
       </PageHeader>
 
@@ -74,10 +75,10 @@ export default function UsersPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>NGƯỜI DÙNG</th>
-                  <th>VAI TRÒ</th>
-                  <th>TÀI LIỆU</th>
-                  <th>NGÀY TẠO</th>
+                  <th>{t('NGƯỜI DÙNG')}</th>
+                  <th>{t('VAI TRÒ')}</th>
+                  <th>{t('TÀI LIỆU')}</th>
+                  <th>{t('NGÀY TẠO')}</th>
                   <th />
                 </tr>
               </thead>
@@ -87,29 +88,29 @@ export default function UsersPage() {
                     <td>
                       <p className="font-display font-bold">
                         {row.name}
-                        {row.id === me?.id && <span className="tag ml-2 bg-mark">BẠN</span>}
+                        {row.id === me?.id && <span className="tag ml-2 bg-mark">{t('BẠN')}</span>}
                       </p>
                       <p className="font-mono text-xs text-muted">{row.email}</p>
                     </td>
                     <td>
-                      <span className={`tag ${row.role === 'ADMIN' ? 'bg-ink text-paper' : ''}`}>{row.role === 'ADMIN' ? 'QUẢN TRỊ' : 'SINH VIÊN'}</span>
-                      {row.isLocked && <span className="tag ml-2 bg-flame">ĐÃ KHÓA</span>}
+                      <span className={`tag ${row.role === 'ADMIN' ? 'bg-ink text-paper' : ''}`}>{row.role === 'ADMIN' ? t('QUẢN TRỊ') : t('SINH VIÊN')}</span>
+                      {row.isLocked && <span className="tag ml-2 bg-flame">{t('ĐÃ KHÓA')}</span>}
                     </td>
                     <td className="font-mono tabular-nums">{row._count.documents}</td>
-                    <td className="font-mono text-xs whitespace-nowrap">{new Date(row.createdAt).toLocaleDateString('vi-VN')}</td>
+                    <td className="font-mono text-xs whitespace-nowrap">{new Date(row.createdAt).toLocaleDateString(locale)}</td>
                     <td>
                       {/* Server cũng chặn việc tự khóa hoặc tự hạ quyền */}
                       {row.id !== me?.id && (
                         <div className="flex justify-end gap-3 whitespace-nowrap">
                           <button disabled={update.isPending} onClick={() => toggleRole(row)} className="btn btn-sm">
-                            {row.role === 'ADMIN' ? 'Bỏ quyền quản trị' : 'Cấp quyền quản trị'}
+                            {row.role === 'ADMIN' ? t('Bỏ quyền quản trị') : t('Cấp quyền quản trị')}
                           </button>
                           <button
                             disabled={update.isPending}
                             onClick={() => update.mutate({ id: row.id, isLocked: !row.isLocked })}
                             className={`btn btn-sm ${row.isLocked ? '' : 'btn-flame'}`}
                           >
-                            {row.isLocked ? 'Mở khóa' : 'Khóa'}
+                            {row.isLocked ? t('Mở khóa') : t('Khóa')}
                           </button>
                         </div>
                       )}
@@ -119,7 +120,7 @@ export default function UsersPage() {
                 {data.items.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-12 text-center text-muted">
-                      Không tìm thấy người dùng nào.
+                      {t('Không tìm thấy người dùng nào.')}
                     </td>
                   </tr>
                 )}
@@ -129,14 +130,14 @@ export default function UsersPage() {
 
           <div className="mt-5 flex items-center justify-between gap-4">
             <p className="font-mono text-xs text-muted">
-              {data.total} NGƯỜI DÙNG · TRANG {data.page}/{pages}
+              {data.total} {t('NGƯỜI DÙNG · TRANG')} {data.page}/{pages}
             </p>
             <div className="flex gap-3">
               <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="btn btn-sm">
-                ← Trước
+                {t('← Trước')}
               </button>
               <button disabled={page >= pages} onClick={() => setPage(page + 1)} className="btn btn-sm">
-                Sau →
+                {t('Sau →')}
               </button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
+import { t } from './i18n.ts'
 
 export type User = { id: number; name: string; email: string; role: 'STUDENT' | 'ADMIN' }
 type Session = { user: User; accessToken: string }
@@ -45,8 +46,8 @@ api.interceptors.response.use(undefined, async (error) => {
   return api(config)
 })
 
-// Lấy thông báo lỗi tiếng Việt do backend trả về
+// Backend trả thông báo tiếng Việt; t() dịch những câu có trong từ điển
 export function errorMessage(error: unknown) {
-  if (axios.isAxiosError(error)) return error.response?.data?.message ?? 'Không kết nối được máy chủ'
-  return 'Đã có lỗi xảy ra'
+  if (axios.isAxiosError(error)) return t(error.response?.data?.message ?? 'Không kết nối được máy chủ')
+  return t('Đã có lỗi xảy ra')
 }

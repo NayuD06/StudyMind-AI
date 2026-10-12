@@ -7,17 +7,19 @@ import ReportBox from '../components/ReportBox.tsx'
 import { api, errorMessage } from '../lib/api.ts'
 import { useAuth } from '../lib/auth.tsx'
 import { fetchFile, fileSize, ratingText, saveBlob, subjectCode, subjectName, type DocDetail } from '../lib/documents.ts'
+import { locale, t } from '../lib/i18n.ts'
 
 // pdf.js khá nặng nên chỉ tải khi mở trang chi tiết
 const PdfViewer = lazy(() => import('../components/PdfViewer.tsx'))
 
 type Message = { role: 'user' | 'assistant'; text: string }
 
+// Tên tiếng Việt dùng làm mã của tab; lúc hiển thị mới dịch
 const TABS = ['Thông tin', 'Hỏi đáp', 'Tóm tắt', 'Ôn tập']
 
 const STATUS_NOTE = {
-  PENDING: 'Tài liệu đang chờ quản trị viên duyệt. Hiện chỉ bạn xem được.',
-  REJECTED: 'Tài liệu đã bị từ chối và không hiện trong thư viện.',
+  PENDING: t('Tài liệu đang chờ quản trị viên duyệt. Hiện chỉ bạn xem được.'),
+  REJECTED: t('Tài liệu đã bị từ chối và không hiện trong thư viện.'),
 }
 
 export default function DocumentDetailPage() {
@@ -31,7 +33,7 @@ export default function DocumentDetailPage() {
   const [hover, setHover] = useState(0)
   const [notice, setNotice] = useState('')
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', text: 'Hãy đặt câu hỏi về nội dung tài liệu này.' },
+    { role: 'assistant', text: t('Hãy đặt câu hỏi về nội dung tài liệu này.') },
   ])
 
   // Chờ khôi phục phiên xong mới gọi, để tài liệu chưa duyệt của chính mình không bị báo 404 oan
@@ -83,7 +85,7 @@ export default function DocumentDetailPage() {
     setMessages((prev) => [
       ...prev,
       { role: 'user', text: input.trim() },
-      { role: 'assistant', text: 'AI service chưa được kết nối nên chưa thể trả lời.' },
+      { role: 'assistant', text: t('AI service chưa được kết nối nên chưa thể trả lời.') },
     ])
     setInput('')
   }
@@ -91,17 +93,17 @@ export default function DocumentDetailPage() {
   if (detail.isError || Number.isNaN(id)) {
     return (
       <div className="mx-auto max-w-6xl px-4 py-20">
-        <h1 className="font-display text-4xl font-bold">Không tìm thấy tài liệu</h1>
-        <p className="mt-3 text-muted">{detail.isError ? errorMessage(detail.error) : 'Đường dẫn không hợp lệ.'}</p>
+        <h1 className="font-display text-4xl font-bold">{t('Không tìm thấy tài liệu')}</h1>
+        <p className="mt-3 text-muted">{detail.isError ? errorMessage(detail.error) : t('Đường dẫn không hợp lệ.')}</p>
         <Link to="/documents" className="btn mt-6">
-          ← Về thư viện
+          {t('← Về thư viện')}
         </Link>
       </div>
     )
   }
 
   const doc = detail.data
-  if (!doc) return <p className="mx-auto max-w-6xl px-4 py-20 font-mono text-xs text-muted">ĐANG TẢI...</p>
+  if (!doc) return <p className="mx-auto max-w-6xl px-4 py-20 font-mono text-xs text-muted">{t('ĐANG TẢI...')}</p>
 
   const isPublic = doc.moderationStatus === 'APPROVED'
   const isMine = user?.id === doc.uploader.id
@@ -110,13 +112,13 @@ export default function DocumentDetailPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
       <Link to="/documents" className="link-wipe font-mono text-xs">
-        ← THƯ VIỆN
+        {t('← THƯ VIỆN')}
       </Link>
 
       {!isPublic && (
         <p className="mt-4 animate-pop border-l-4 border-flame bg-mark/40 px-3 py-2 text-sm">
           {STATUS_NOTE[doc.moderationStatus as keyof typeof STATUS_NOTE]}
-          {doc.rejectReason && <b> Lý do: {doc.rejectReason}</b>}
+          {doc.rejectReason && <b> {t('Lý do:')} {doc.rejectReason}</b>}
         </p>
       )}
 
@@ -124,13 +126,13 @@ export default function DocumentDetailPage() {
         <div className="min-w-0">
           <p className="font-mono text-xs text-muted">
             <span className="bg-ink px-1.5 py-0.5 text-paper">{subjectCode(doc)}</span>{' '}
-            {[subjectName(doc), doc.school].filter(Boolean).join(' · ') || 'Chưa phân môn'}
+            {[subjectName(doc), doc.school].filter(Boolean).join(' · ') || t('Chưa phân môn')}
           </p>
           <h1 className="mt-3 overflow-hidden font-display text-4xl font-bold">
             <span className="block animate-rise">{doc.title}</span>
           </h1>
           <p className="mt-2 font-mono text-xs text-muted">
-            {doc.pageCount ?? '?'} trang · ★ {ratingText(doc.rating)} ({doc.rating.count}) · ↓ {doc.downloadCount} lượt tải · {doc.viewCount} lượt xem
+            {t('{0} trang', doc.pageCount ?? '?')} · ★ {ratingText(doc.rating)} ({doc.rating.count}) · ↓ {t('{0} lượt tải', doc.downloadCount)} · {t('{0} lượt xem', doc.viewCount)}
           </p>
         </div>
 
@@ -147,16 +149,16 @@ export default function DocumentDetailPage() {
                   <span key={String(doc.isFavorite)} className="animate-pop">
                     {doc.isFavorite ? '♥' : '♡'}
                   </span>
-                  {doc.isFavorite ? 'Đã lưu' : 'Lưu lại'}
+                  {doc.isFavorite ? t('Đã lưu') : t('Lưu lại')}
                 </button>
               )}
               <button onClick={() => download.mutate()} disabled={download.isPending} className="btn btn-ink disabled:opacity-60">
-                {download.isPending ? 'Đang tải...' : 'Tải xuống'}
+                {download.isPending ? t('Đang tải...') : t('Tải xuống')}
               </button>
             </>
           ) : (
             <Link to="/login" className="btn btn-ink">
-              Đăng nhập để tải xuống
+              {t('Đăng nhập để tải xuống')}
             </Link>
           )}
         </div>
@@ -184,25 +186,25 @@ export default function DocumentDetailPage() {
                 onClick={() => setTab(item)}
                 className={`flex-1 border-ink px-2 py-3 transition-colors not-last:border-r-2 ${tab === item ? 'bg-ink text-paper' : 'hover:bg-mark'}`}
               >
-                {item}
+                {t(item)}
               </button>
             ))}
           </div>
 
           {tab === 'Thông tin' && (
             <div className="flex-1 space-y-5 p-5">
-              <p className="text-sm whitespace-pre-line">{doc.description ?? <span className="text-muted">Người đăng chưa viết mô tả.</span>}</p>
+              <p className="text-sm whitespace-pre-line">{doc.description ?? <span className="text-muted">{t('Người đăng chưa viết mô tả.')}</span>}</p>
 
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 border-t-2 border-ink pt-4 font-mono text-xs">
-                <dt className="text-muted">NGƯỜI ĐĂNG</dt>
+                <dt className="text-muted">{t('NGƯỜI ĐĂNG')}</dt>
                 <dd>{doc.uploader.name}</dd>
-                <dt className="text-muted">NGÀY ĐĂNG</dt>
-                <dd>{new Date(doc.createdAt).toLocaleDateString('vi-VN')}</dd>
-                <dt className="text-muted">DUNG LƯỢNG</dt>
+                <dt className="text-muted">{t('NGÀY ĐĂNG')}</dt>
+                <dd>{new Date(doc.createdAt).toLocaleDateString(locale)}</dd>
+                <dt className="text-muted">{t('DUNG LƯỢNG')}</dt>
                 <dd>{fileSize(doc.fileSize)}</dd>
                 {doc.major && (
                   <>
-                    <dt className="text-muted">NGÀNH</dt>
+                    <dt className="text-muted">{t('NGÀNH')}</dt>
                     <dd>{doc.major}</dd>
                   </>
                 )}
@@ -210,16 +212,16 @@ export default function DocumentDetailPage() {
 
               {isPublic && (
                 <div className="border-t-2 border-ink pt-4">
-                  <p className="font-display font-bold">Đánh giá của bạn</p>
+                  <p className="font-display font-bold">{t('Đánh giá của bạn')}</p>
                   {!user ? (
                     <p className="mt-1 text-sm text-muted">
                       <Link to="/login" className="underline">
-                        Đăng nhập
+                        {t('Đăng nhập')}
                       </Link>{' '}
-                      để đánh giá tài liệu này.
+                      {t('để đánh giá tài liệu này.')}
                     </p>
                   ) : isMine ? (
-                    <p className="mt-1 text-sm text-muted">Bạn là người đăng nên không tự đánh giá được.</p>
+                    <p className="mt-1 text-sm text-muted">{t('Bạn là người đăng nên không tự đánh giá được.')}</p>
                   ) : (
                     <div className="mt-2 flex items-center gap-1" onMouseLeave={() => setHover(0)}>
                       {[1, 2, 3, 4, 5].map((score) => (
@@ -234,7 +236,7 @@ export default function DocumentDetailPage() {
                           ★
                         </button>
                       ))}
-                      {doc.myRating && <span className="ml-2 font-mono text-xs text-muted">ĐÃ CHẤM {doc.myRating}/5</span>}
+                      {doc.myRating && <span className="ml-2 font-mono text-xs text-muted">{t('ĐÃ CHẤM')} {doc.myRating}/5</span>}
                     </div>
                   )}
                 </div>
@@ -264,11 +266,11 @@ export default function DocumentDetailPage() {
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Hỏi về tài liệu này..."
+                  placeholder={t('Hỏi về tài liệu này...')}
                   className="min-w-0 flex-1 bg-sheet px-4 py-3 outline-none"
                 />
                 <button className="border-l-2 border-ink bg-flame px-5 font-display font-bold transition-colors hover:bg-ink hover:text-paper">
-                  GỬI
+                  {t('GỬI')}
                 </button>
               </form>
             </>
@@ -276,7 +278,7 @@ export default function DocumentDetailPage() {
 
           {(tab === 'Tóm tắt' || tab === 'Ôn tập') && (
             <div className="grid flex-1 place-items-center p-6 text-center text-muted">
-              Chức năng "{tab}" sẽ có khi kết nối AI service.
+              {t('Chức năng "{0}" sẽ có khi kết nối AI service.', t(tab))}
             </div>
           )}
         </div>

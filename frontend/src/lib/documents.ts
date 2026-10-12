@@ -1,4 +1,5 @@
 import { api } from './api.ts'
+import { t } from './i18n.ts'
 
 export type Subject = { id: number; name: string; slug: string }
 
@@ -24,7 +25,11 @@ export type DocDetail = DocSummary & { myRating: number | null; isFavorite: bool
 
 export type DocList = { items: DocSummary[]; total: number; page: number; limit: number }
 
-export const subjectName = (doc: DocSummary) => doc.subjects[0]?.subject.name ?? null
+// Tên môn lưu bằng tiếng Việt trong CSDL; môn có sẵn trong từ điển thì hiện bản dịch
+export function subjectName(doc: DocSummary) {
+  const name = doc.subjects[0]?.subject.name
+  return name ? t(name) : null
+}
 
 // Mã ngắn ghép từ chữ cái đầu của tên môn: "Cơ sở dữ liệu" thành "CSDL"
 export function subjectCode(doc: DocSummary) {

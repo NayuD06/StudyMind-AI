@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { api, refreshSession, setAccessToken, type User } from './api.ts'
+import { t } from './i18n.ts'
 
 type Credentials = { email: string; password: string }
 
@@ -57,6 +58,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const value = useContext(AuthContext)
-  if (!value) throw new Error('useAuth phải dùng bên trong AuthProvider')
+  if (!value) throw new Error(t('useAuth phải dùng bên trong AuthProvider'))
   return value
 }

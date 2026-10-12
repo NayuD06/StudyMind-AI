@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
 import PageHeader, { ErrorNote } from '../components/PageHeader.tsx'
 import { api, errorMessage } from '../lib/api.ts'
+import { locale, t } from '../lib/i18n.ts'
 
 type Status = 'OPEN' | 'RESOLVED' | 'REJECTED'
 
@@ -14,9 +15,9 @@ type ReportItem = {
 }
 
 const TABS: { status: Status; label: string }[] = [
-  { status: 'OPEN', label: 'CHỜ XỬ LÝ' },
-  { status: 'RESOLVED', label: 'ĐÃ GỠ' },
-  { status: 'REJECTED', label: 'BỎ QUA' },
+  { status: 'OPEN', label: t('CHỜ XỬ LÝ') },
+  { status: 'RESOLVED', label: t('ĐÃ GỠ') },
+  { status: 'REJECTED', label: t('BỎ QUA') },
 ]
 
 export default function ReportsPage() {
@@ -66,7 +67,7 @@ export default function ReportsPage() {
 
   return (
     <>
-      <PageHeader code="03 · BÁO CÁO" title="Báo cáo vi phạm">
+      <PageHeader code={t('03 · BÁO CÁO')} title={t('Báo cáo vi phạm')}>
         <div className="flex border-2 border-ink font-display text-sm font-bold">
           {TABS.map((tab) => (
             <button
@@ -87,7 +88,7 @@ export default function ReportsPage() {
       {reports.isError && <ErrorNote message={errorMessage(reports.error)} />}
 
       <div className="space-y-4">
-        {reports.data?.length === 0 && <div className="panel px-6 py-14 text-center text-muted">Không có báo cáo nào ở mục này.</div>}
+        {reports.data?.length === 0 && <div className="panel px-6 py-14 text-center text-muted">{t('Không có báo cáo nào ở mục này.')}</div>}
 
         {reports.data?.map((report, i) => (
           <article key={report.id} className="panel animate-pop p-5" style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}>
@@ -95,24 +96,24 @@ export default function ReportsPage() {
               <div className="min-w-0">
                 <h2 className="font-display text-xl font-bold">{report.document.title}</h2>
                 <p className="mt-1 font-mono text-xs break-all text-muted">
-                  Người đăng: {report.document.uploader.name} ({report.document.uploader.email})
+                  {t('Người đăng:')} {report.document.uploader.name} ({report.document.uploader.email})
                 </p>
               </div>
               <div className="flex flex-wrap gap-3">
                 <button onClick={() => preview(report.document.id)} className="btn btn-sm">
-                  Xem PDF
+                  {t('Xem PDF')}
                 </button>
                 {status === 'OPEN' && (
                   <>
                     <button disabled={resolve.isPending} onClick={() => resolve.mutate({ id: report.id, action: 'DISMISS' })} className="btn btn-sm">
-                      Bỏ qua
+                      {t('Bỏ qua')}
                     </button>
                     <button
                       disabled={resolve.isPending}
                       onClick={() => setRemovingId(removingId === report.id ? null : report.id)}
                       className="btn btn-sm btn-flame"
                     >
-                      Gỡ tài liệu
+                      {t('Gỡ tài liệu')}
                     </button>
                   </>
                 )}
@@ -122,7 +123,7 @@ export default function ReportsPage() {
             <div className="mt-4 border-l-4 border-flame bg-mark/40 px-3 py-2">
               <p className="text-sm break-words whitespace-pre-line">{report.reason}</p>
               <p className="mt-1 font-mono text-xs text-muted">
-                {report.user.name} ({report.user.email}) · {new Date(report.createdAt).toLocaleString('vi-VN')}
+                {report.user.name} ({report.user.email}) · {new Date(report.createdAt).toLocaleString(locale)}
               </p>
             </div>
 
@@ -134,12 +135,12 @@ export default function ReportsPage() {
                   maxLength={500}
                   autoFocus
                   defaultValue={report.reason.slice(0, 500)}
-                  aria-label="Lý do gỡ tài liệu"
-                  placeholder="Lý do gỡ (người đăng sẽ thấy)"
+                  aria-label={t('Lý do gỡ tài liệu')}
+                  placeholder={t('Lý do gỡ (người đăng sẽ thấy)')}
                   className="field min-w-0 flex-1"
                 />
                 <button disabled={resolve.isPending} className="btn btn-flame">
-                  Xác nhận gỡ
+                  {t('Xác nhận gỡ')}
                 </button>
               </form>
             )}

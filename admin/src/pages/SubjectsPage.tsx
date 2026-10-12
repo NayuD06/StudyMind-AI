@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
 import PageHeader, { ErrorNote } from '../components/PageHeader.tsx'
 import { api, errorMessage } from '../lib/api.ts'
+import { t } from '../lib/i18n.ts'
 
 type SubjectRow = { id: number; name: string; slug: string; _count: { documents: number } }
 
@@ -39,8 +40,8 @@ export default function SubjectsPage() {
   }
 
   function confirmRemove(row: SubjectRow) {
-    const note = row._count.documents ? ` ${row._count.documents} tài liệu sẽ mất nhãn môn này (tài liệu vẫn còn).` : ''
-    if (window.confirm(`Xóa môn "${row.name}"?${note}`)) remove.mutate(row.id)
+    const note = row._count.documents ? t(' {0} tài liệu sẽ mất nhãn môn này (tài liệu vẫn còn).', row._count.documents) : ''
+    if (window.confirm(t('Xóa môn "{0}"?{1}', row.name, note))) remove.mutate(row.id)
   }
 
   const failed = [create, rename, remove].find((mutation) => mutation.isError)
@@ -48,11 +49,11 @@ export default function SubjectsPage() {
 
   return (
     <>
-      <PageHeader code="05 · MÔN HỌC" title="Môn học">
+      <PageHeader code={t('05 · MÔN HỌC')} title={t('Môn học')}>
         <form onSubmit={add} className="flex gap-3">
-          <input name="name" required minLength={2} maxLength={120} placeholder="Tên môn học mới" className="field w-64 py-2" />
+          <input name="name" required minLength={2} maxLength={120} placeholder={t('Tên môn học mới')} className="field w-64 py-2" />
           <button disabled={busy} className="btn btn-sm btn-ink">
-            + Thêm
+            {t('+ Thêm')}
           </button>
         </form>
       </PageHeader>
@@ -65,9 +66,9 @@ export default function SubjectsPage() {
           <table className="table">
             <thead>
               <tr>
-                <th>MÔN HỌC</th>
-                <th>MÃ</th>
-                <th>TÀI LIỆU</th>
+                <th>{t('MÔN HỌC')}</th>
+                <th>{t('MÃ')}</th>
+                <th>{t('TÀI LIỆU')}</th>
                 <th />
               </tr>
             </thead>
@@ -90,19 +91,19 @@ export default function SubjectsPage() {
                       {editingId === row.id ? (
                         <>
                           <button form={`subject-${row.id}`} disabled={busy} className="btn btn-sm btn-ink">
-                            Lưu
+                            {t('Lưu')}
                           </button>
                           <button onClick={() => setEditingId(null)} className="btn btn-sm">
-                            Hủy
+                            {t('Hủy')}
                           </button>
                         </>
                       ) : (
                         <>
                           <button onClick={() => setEditingId(row.id)} className="btn btn-sm">
-                            Đổi tên
+                            {t('Đổi tên')}
                           </button>
                           <button disabled={busy} onClick={() => confirmRemove(row)} className="btn btn-sm btn-flame">
-                            Xóa
+                            {t('Xóa')}
                           </button>
                         </>
                       )}
@@ -113,7 +114,7 @@ export default function SubjectsPage() {
               {subjects.data.length === 0 && (
                 <tr>
                   <td colSpan={4} className="py-12 text-center text-muted">
-                    Chưa có môn học nào.
+                    {t('Chưa có môn học nào.')}
                   </td>
                 </tr>
               )}

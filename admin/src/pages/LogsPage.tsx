@@ -2,6 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import PageHeader, { ErrorNote } from '../components/PageHeader.tsx'
 import { api, errorMessage } from '../lib/api.ts'
+import { locale, t } from '../lib/i18n.ts'
 
 type LogRow = {
   id: number
@@ -16,19 +17,19 @@ type LogList = { items: LogRow[]; total: number; page: number; limit: number }
 
 // Nhãn và màu cho từng loại thao tác (xem backend/src/lib/audit.ts)
 const ACTIONS: Record<string, { label: string; tone: string }> = {
-  ADMIN_LOGIN: { label: 'ĐĂNG NHẬP', tone: '' },
-  DOCUMENT_APPROVE: { label: 'DUYỆT TÀI LIỆU', tone: 'bg-ink text-paper' },
-  DOCUMENT_REJECT: { label: 'TỪ CHỐI TÀI LIỆU', tone: 'bg-flame' },
-  DOCUMENT_DELETE: { label: 'XÓA TÀI LIỆU', tone: 'bg-flame' },
-  USER_LOCK: { label: 'KHÓA TÀI KHOẢN', tone: 'bg-flame' },
-  USER_UNLOCK: { label: 'MỞ KHÓA', tone: '' },
-  USER_ROLE: { label: 'ĐỔI VAI TRÒ', tone: 'bg-mark' },
-  SUBJECT_CREATE: { label: 'THÊM MÔN', tone: '' },
-  SUBJECT_UPDATE: { label: 'SỬA MÔN', tone: '' },
-  SUBJECT_DELETE: { label: 'XÓA MÔN', tone: 'bg-flame' },
-  COMMENT_DELETE: { label: 'XÓA BÌNH LUẬN', tone: 'bg-flame' },
-  REPORT_RESOLVE: { label: 'GỠ THEO BÁO CÁO', tone: 'bg-flame' },
-  REPORT_DISMISS: { label: 'BỎ QUA BÁO CÁO', tone: '' },
+  ADMIN_LOGIN: { label: t('ĐĂNG NHẬP'), tone: '' },
+  DOCUMENT_APPROVE: { label: t('DUYỆT TÀI LIỆU'), tone: 'bg-ink text-paper' },
+  DOCUMENT_REJECT: { label: t('TỪ CHỐI TÀI LIỆU'), tone: 'bg-flame' },
+  DOCUMENT_DELETE: { label: t('XÓA TÀI LIỆU'), tone: 'bg-flame' },
+  USER_LOCK: { label: t('KHÓA TÀI KHOẢN'), tone: 'bg-flame' },
+  USER_UNLOCK: { label: t('MỞ KHÓA'), tone: '' },
+  USER_ROLE: { label: t('ĐỔI VAI TRÒ'), tone: 'bg-mark' },
+  SUBJECT_CREATE: { label: t('THÊM MÔN'), tone: '' },
+  SUBJECT_UPDATE: { label: t('SỬA MÔN'), tone: '' },
+  SUBJECT_DELETE: { label: t('XÓA MÔN'), tone: 'bg-flame' },
+  COMMENT_DELETE: { label: t('XÓA BÌNH LUẬN'), tone: 'bg-flame' },
+  REPORT_RESOLVE: { label: t('GỠ THEO BÁO CÁO'), tone: 'bg-flame' },
+  REPORT_DISMISS: { label: t('BỎ QUA BÁO CÁO'), tone: '' },
 }
 
 export default function LogsPage() {
@@ -45,8 +46,8 @@ export default function LogsPage() {
 
   return (
     <>
-      <PageHeader code="06 · NHẬT KÝ" title="Nhật ký quản trị">
-        <p className="max-w-xs text-right text-sm text-muted">Mọi thao tác của quản trị viên được ghi lại, không sửa hay xóa được.</p>
+      <PageHeader code={t('06 · NHẬT KÝ')} title={t('Nhật ký quản trị')}>
+        <p className="max-w-xs text-right text-sm text-muted">{t('Mọi thao tác của quản trị viên được ghi lại, không sửa hay xóa được.')}</p>
       </PageHeader>
 
       {logs.isError && <ErrorNote message={errorMessage(logs.error)} />}
@@ -57,16 +58,16 @@ export default function LogsPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>THỜI GIAN</th>
-                  <th>QUẢN TRỊ VIÊN</th>
-                  <th>THAO TÁC</th>
-                  <th>CHI TIẾT</th>
+                  <th>{t('THỜI GIAN')}</th>
+                  <th>{t('QUẢN TRỊ VIÊN')}</th>
+                  <th>{t('THAO TÁC')}</th>
+                  <th>{t('CHI TIẾT')}</th>
                 </tr>
               </thead>
               <tbody>
                 {data.items.map((row) => (
                   <tr key={row.id}>
-                    <td className="font-mono text-xs whitespace-nowrap">{new Date(row.createdAt).toLocaleString('vi-VN')}</td>
+                    <td className="font-mono text-xs whitespace-nowrap">{new Date(row.createdAt).toLocaleString(locale)}</td>
                     <td>
                       <p className="font-display font-bold">{row.admin.name}</p>
                       <p className="font-mono text-xs text-muted">{row.admin.email}</p>
@@ -83,7 +84,7 @@ export default function LogsPage() {
                 {data.items.length === 0 && (
                   <tr>
                     <td colSpan={4} className="py-12 text-center text-muted">
-                      Chưa có thao tác nào được ghi.
+                      {t('Chưa có thao tác nào được ghi.')}
                     </td>
                   </tr>
                 )}
@@ -93,14 +94,14 @@ export default function LogsPage() {
 
           <div className="mt-5 flex items-center justify-between gap-4">
             <p className="font-mono text-xs text-muted">
-              {data.total} DÒNG · TRANG {data.page}/{pages}
+              {data.total} {t('DÒNG · TRANG')} {data.page}/{pages}
             </p>
             <div className="flex gap-3">
               <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="btn btn-sm">
-                ← Mới hơn
+                {t('← Mới hơn')}
               </button>
               <button disabled={page >= pages} onClick={() => setPage(page + 1)} className="btn btn-sm">
-                Cũ hơn →
+                {t('Cũ hơn →')}
               </button>
             </div>
           </div>

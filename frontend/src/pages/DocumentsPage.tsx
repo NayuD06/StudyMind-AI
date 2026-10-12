@@ -6,12 +6,13 @@ import Reveal from '../components/Reveal.tsx'
 import { errorMessage } from '../lib/api.ts'
 import { fetchDocuments, fetchSubjects } from '../lib/documents.ts'
 import { useDebounced } from '../lib/useDebounced.ts'
+import { t } from '../lib/i18n.ts'
 
 type Mode = 'keyword' | 'semantic'
 
 const SORTS = [
-  { value: 'new', label: 'MỚI NHẤT' },
-  { value: 'popular', label: 'TẢI NHIỀU' },
+  { value: 'new', label: t('MỚI NHẤT') },
+  { value: 'popular', label: t('TẢI NHIỀU') },
 ] as const
 
 export default function DocumentsPage() {
@@ -48,10 +49,10 @@ export default function DocumentsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <p className="font-mono text-xs text-muted">/ THƯ VIỆN</p>
+      <p className="font-mono text-xs text-muted">{t('/ THƯ VIỆN')}</p>
       <h1 className="mt-2 font-display text-5xl font-bold">
         <span className="block overflow-hidden pb-1">
-          <span className="block animate-rise">Thư viện tài liệu</span>
+          <span className="block animate-rise">{t('Thư viện tài liệu')}</span>
         </span>
       </h1>
 
@@ -59,8 +60,8 @@ export default function DocumentsPage() {
         <input
           value={query}
           onChange={(e) => update({ q: e.target.value || undefined })}
-          placeholder="Nhập từ khóa hoặc câu hỏi..."
-          aria-label="Tìm tài liệu"
+          placeholder={t('Nhập từ khóa hoặc câu hỏi...')}
+          aria-label={t('Tìm tài liệu')}
           className="field flex-1"
         />
         <div className="flex border-2 border-ink font-display text-sm font-bold">
@@ -70,7 +71,7 @@ export default function DocumentsPage() {
               onClick={() => setMode(value)}
               className={`flex-1 px-4 py-3 transition-colors ${mode === value ? 'bg-ink text-paper' : 'bg-sheet hover:bg-mark'}`}
             >
-              {value === 'keyword' ? 'TỪ KHÓA' : 'NGỮ NGHĨA'}
+              {value === 'keyword' ? t('TỪ KHÓA') : t('NGỮ NGHĨA')}
             </button>
           ))}
         </div>
@@ -78,7 +79,7 @@ export default function DocumentsPage() {
 
       {mode === 'semantic' && (
         <p className="mt-3 animate-pop border-l-4 border-flame bg-sheet px-3 py-2 font-mono text-xs">
-          Tìm kiếm ngữ nghĩa cần AI service. Hiện kết quả vẫn đang lọc theo từ khóa.
+          {t('Tìm kiếm ngữ nghĩa cần AI service. Hiện kết quả vẫn đang lọc theo từ khóa.')}
         </p>
       )}
 
@@ -91,14 +92,14 @@ export default function DocumentsPage() {
               onClick={() => update({ subject: item ? String(item.id) : undefined })}
               className={`border-2 border-ink px-3 py-1 text-sm transition duration-150 hover:-translate-y-0.5 ${active ? 'bg-mark shadow-[3px_3px_0_var(--color-ink)]' : 'bg-sheet'}`}
             >
-              {item?.name ?? 'Tất cả'}
+              {item ? t(item.name) : t('Tất cả')}
             </button>
           )
         })}
       </div>
 
       <div className="mt-8 flex items-center justify-between gap-4">
-        <p className="font-mono text-xs text-muted">{data ? `${data.total} KẾT QUẢ` : 'ĐANG TẢI...'}</p>
+        <p className="font-mono text-xs text-muted">{data ? t('{0} KẾT QUẢ', data.total) : t('ĐANG TẢI...')}</p>
         <div className="flex gap-4 font-mono text-xs">
           {SORTS.map((item) => (
             <button
@@ -131,10 +132,10 @@ export default function DocumentsPage() {
       {data && data.items.length === 0 && (
         <div className="panel mt-4 px-6 py-14 text-center">
           <p className="font-display text-2xl font-bold">
-            {search || subjectId ? 'Không tìm thấy tài liệu phù hợp' : 'Thư viện chưa có tài liệu nào'}
+            {search || subjectId ? t('Không tìm thấy tài liệu phù hợp') : t('Thư viện chưa có tài liệu nào')}
           </p>
           <p className="mt-2 text-muted">
-            {search || subjectId ? 'Thử từ khóa khác hoặc bỏ bộ lọc môn học.' : 'Hãy là người đầu tiên đăng tài liệu.'}
+            {search || subjectId ? t('Thử từ khóa khác hoặc bỏ bộ lọc môn học.') : t('Hãy là người đầu tiên đăng tài liệu.')}
           </p>
         </div>
       )}
@@ -142,13 +143,13 @@ export default function DocumentsPage() {
       {data && pages > 1 && (
         <div className="mt-10 flex items-center justify-center gap-4">
           <button disabled={page <= 1} onClick={() => update({ page: String(page - 1) }, true)} className="btn btn-sm disabled:opacity-40">
-            ← Trước
+            {t('← Trước')}
           </button>
           <span className="font-mono text-xs">
-            TRANG {page}/{pages}
+            {t('TRANG')} {page}/{pages}
           </span>
           <button disabled={page >= pages} onClick={() => update({ page: String(page + 1) }, true)} className="btn btn-sm disabled:opacity-40">
-            Sau →
+            {t('Sau →')}
           </button>
         </div>
       )}

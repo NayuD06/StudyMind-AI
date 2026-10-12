@@ -11,6 +11,16 @@
       rel="stylesheet"
     />
     <meta name="robots" content="noindex" />
+    <script>
+      // Gắn giao diện đã chọn trước khi vẽ trang để không bị nháy sáng rồi mới tối
+      try {
+        var theme = localStorage.getItem('theme')
+        if (theme !== 'light' && theme !== 'dark') theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        document.documentElement.dataset.theme = theme
+      } catch (e) {
+        document.documentElement.dataset.theme = 'light'
+      }
+    </script>
     <title>StudyMind AI · Quản trị</title>
   </head>
   <body>

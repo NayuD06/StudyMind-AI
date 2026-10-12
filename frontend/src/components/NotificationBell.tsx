@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../lib/api.ts'
+import { locale, t } from '../lib/i18n.ts'
 
 type Notification = { id: number; message: string; documentId: number | null; readAt: string | null; createdAt: string }
 type NotificationList = { items: Notification[]; unread: number }
@@ -55,7 +56,7 @@ export default function NotificationBell({ userId }: { userId: number }) {
     <div ref={box} className="relative">
       <button
         onClick={toggle}
-        aria-label={unread ? `Thông báo, ${unread} chưa đọc` : 'Thông báo'}
+        aria-label={unread ? t('Thông báo, {0} chưa đọc', unread) : t('Thông báo')}
         aria-expanded={open}
         className={`relative grid size-9 place-items-center border-2 border-ink transition-colors ${open ? 'bg-ink text-paper' : 'bg-sheet hover:bg-mark'}`}
       >
@@ -72,14 +73,14 @@ export default function NotificationBell({ userId }: { userId: number }) {
       {open && (
         // Điện thoại: trải ngang màn hình ngay dưới header; màn hình rộng: thả xuống dưới cái chuông
         <div className="panel shadow-hard fixed inset-x-4 top-[4.25rem] z-30 max-h-[70vh] animate-pop overflow-y-auto sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-3 sm:w-[22rem]">
-          <p className="border-b-2 border-ink px-4 py-2 font-mono text-xs text-muted">THÔNG BÁO</p>
-          {list.data?.items.length === 0 && <p className="px-4 py-8 text-center text-sm text-muted">Chưa có thông báo nào.</p>}
+          <p className="border-b-2 border-ink px-4 py-2 font-mono text-xs text-muted">{t('THÔNG BÁO')}</p>
+          {list.data?.items.length === 0 && <p className="px-4 py-8 text-center text-sm text-muted">{t('Chưa có thông báo nào.')}</p>}
           <ul>
             {list.data?.items.map((item) => {
               const body = (
                 <>
                   <span className="block text-sm">{item.message}</span>
-                  <span className="mt-1 block font-mono text-[11px] text-muted">{new Date(item.createdAt).toLocaleString('vi-VN')}</span>
+                  <span className="mt-1 block font-mono text-[11px] text-muted">{new Date(item.createdAt).toLocaleString(locale)}</span>
                 </>
               )
               const tone = `block border-ink px-4 py-3 not-last:border-b-2 ${item.readAt ? '' : 'bg-mark/40'}`

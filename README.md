@@ -12,6 +12,8 @@ Hệ thống chia sẻ tài liệu học tập tích hợp tìm kiếm ngữ ngh
 | `ai-service/` | Python + FastAPI (PDF, embedding, RAG) | 8000 |
 | `docker-compose.yml` | MySQL (3307), Qdrant (6333), AI service | |
 
+Nhật ký các phần việc đã làm nằm trong [`doc/`](doc/README.md). Kiểm tra tự động và đóng gói bản phát hành chạy bằng GitHub Actions (`.github/workflows/`, giải thích ở [`doc/12-10-2026-ci-cd.md`](doc/12-10-2026-ci-cd.md)).
+
 ## Chạy lần đầu
 
 Mở Docker Desktop trước. Tạo các file `.env` theo mục "Biến môi trường" bên dưới, rồi chạy lần lượt:
@@ -103,6 +105,14 @@ Các tab Hỏi đáp, Tóm tắt, Ôn tập và chế độ tìm "Ngữ nghĩa" 
 | Tài khoản | Đổi mật khẩu quản trị, đăng xuất mọi thiết bị |
 
 Khi triển khai thật, thêm địa chỉ của trang quản trị vào `CORS_ORIGIN` của backend.
+
+## Giao diện sáng/tối và ngôn ngữ
+
+Cả hai trang đều có nút đổi giao diện sáng/tối và nút đổi tiếng Việt/tiếng Anh (trang sinh viên: thanh menu và chân trang; trang quản trị: thanh bên và màn hình đăng nhập). Lựa chọn được nhớ trong `localStorage` của trình duyệt.
+
+- **Giao diện tối:** `src/index.css` đổi bốn biến màu khi `<html data-theme="dark">`. Lần đầu mở trang thì theo cài đặt của hệ điều hành.
+- **Ngôn ngữ:** chuỗi tiếng Việt trong mã nguồn chính là khóa, viết `t('Thư viện')`; bản dịch nằm ở `src/lib/i18n.en.ts`. Thêm chữ mới thì bọc bằng `t()` rồi thêm một dòng vào từ điển; thiếu bản dịch thì hiện nguyên tiếng Việt.
+- Thông báo lỗi của backend và tên các môn học có sẵn cũng được dịch qua từ điển. Nội dung do người dùng nhập (tiêu đề, bình luận, tên môn mới) và thông báo trong chuông đã lưu ở database thì giữ nguyên tiếng Việt.
 
 ## Bảo mật đã áp dụng
 

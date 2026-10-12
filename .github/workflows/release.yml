@@ -1,0 +1,56 @@
+# Đóng gói bản phát hành khi đẩy một tag dạng v1.0.0:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+# Kết quả: một GitHub Release kèm 3 file zip đã build sẵn (frontend, admin, backend).
+# Workflow này chưa tự đưa lên máy chủ nào, vì dự án chưa chọn nơi triển khai (xem doc/12-10-2026-ci-cd.md).
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # để tạo Release và đính kèm file
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+
+      - name: Build admin
+        working-directory: admin
+        run: |
+          npm ci
+          npm run lint
+          npm run build
+
+      - name: Build backend
+        working-directory: backend
+        run: |
+          npm ci
+          npx prisma generate
+          npm run build
+
+      - name: Đóng gói
+        run: |
+          mkdir release
+          (cd frontend/dist && zip -qr "../../release/frontend-${GITHUB_REF_NAME}.zip" .)
+          (cd admin/dist && zip -qr "../../release/admin-${GITHUB_REF_NAME}.zip" .)
+          # Backend: mã đã biên dịch + schema và migration; máy chủ tự chạy npm ci --omit=dev
+          (cd backend && zip -qr "../release/backend-${GITHUB_REF_NAME}.zip" dist prisma package.json package-lock.json .env.example)
+
+      - name: Tạo GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release/*.zip --title "$GITHUB_REF_NAME" --generate-notes

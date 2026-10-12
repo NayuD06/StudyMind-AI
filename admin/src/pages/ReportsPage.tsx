@@ -15,9 +15,9 @@ type ReportItem = {
 }
 
 const TABS: { status: Status; label: string }[] = [
-  { status: 'OPEN', label: t('CHỜ XỬ LÝ') },
-  { status: 'RESOLVED', label: t('ĐÃ GỠ') },
-  { status: 'REJECTED', label: t('BỎ QUA') },
+  { status: 'OPEN', label: t('Chờ xử lý') },
+  { status: 'RESOLVED', label: t('Đã gỡ') },
+  { status: 'REJECTED', label: t('Đã bỏ qua') },
 ]
 
 export default function ReportsPage() {
@@ -67,7 +67,7 @@ export default function ReportsPage() {
 
   return (
     <>
-      <PageHeader code={t('03 · BÁO CÁO')} title={t('Báo cáo vi phạm')}>
+      <PageHeader title={t('Báo cáo vi phạm')}>
         <div className="flex border-2 border-ink font-display text-sm font-bold">
           {TABS.map((tab) => (
             <button
@@ -90,8 +90,8 @@ export default function ReportsPage() {
       <div className="space-y-4">
         {reports.data?.length === 0 && <div className="panel px-6 py-14 text-center text-muted">{t('Không có báo cáo nào ở mục này.')}</div>}
 
-        {reports.data?.map((report, i) => (
-          <article key={report.id} className="panel animate-pop p-5" style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}>
+        {reports.data?.map((report) => (
+          <article key={report.id} className="panel p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
                 <h2 className="font-display text-xl font-bold">{report.document.title}</h2>
@@ -128,7 +128,7 @@ export default function ReportsPage() {
             </div>
 
             {removingId === report.id && (
-              <form onSubmit={(e) => remove(e, report.id)} className="mt-4 flex animate-pop flex-wrap gap-3 border-t-2 border-dashed border-ink pt-4">
+              <form onSubmit={(e) => remove(e, report.id)} className="mt-4 flex flex-wrap gap-3 border-t-2 border-dashed border-ink pt-4">
                 <input
                   name="reason"
                   required

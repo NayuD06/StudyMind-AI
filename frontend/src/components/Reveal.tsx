@@ -2,7 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react'
 
 type Props = { children: ReactNode; delay?: number; className?: string }
 
-// Bọc nội dung để nó trượt lên và hiện dần khi cuộn tới
+// Hiện dần khi cuộn tới (một lần). Kiểu chuyển động nằm ở .reveal trong index.css
 export default function Reveal({ children, delay = 0, className = '' }: Props) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -11,12 +11,11 @@ export default function Reveal({ children, delay = 0, className = '' }: Props) {
     if (!el) return
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add('is-in')
-          observer.disconnect()
-        }
+        if (!entry.isIntersecting) return
+        el.classList.add('is-in')
+        observer.disconnect()
       },
-      { threshold: 0.15 },
+      { rootMargin: '0px 0px -10% 0px' },
     )
     observer.observe(el)
     return () => observer.disconnect()

@@ -13,7 +13,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.m
 const ZOOMS = [0.75, 1, 1.25, 1.5, 2]
 
 function Note({ text }: { text: string }) {
-  return <p className="grid min-h-[28rem] place-items-center px-6 text-center font-mono text-xs text-muted">{text}</p>
+  return <p className="grid min-h-[28rem] place-items-center px-6 text-center text-sm text-muted">{text}</p>
 }
 
 export default function PdfViewer({ docId }: { docId: number }) {
@@ -73,16 +73,16 @@ export default function PdfViewer({ docId }: { docId: number }) {
       </div>
 
       <div ref={frame} className="max-h-[80vh] min-h-[28rem] overflow-auto bg-paper">
-        {file.isPending && <Note text={t('ĐANG TẢI FILE...')} />}
+        {file.isPending && <Note text={t('Đang tải file...')} />}
         {file.isError && <Note text={errorMessage(file.error)} />}
         {file.data && width > 0 && (
           <Document
             file={file.data}
             onLoadSuccess={(pdf) => setPages(pdf.numPages)}
-            loading={<Note text={t('ĐANG MỞ PDF...')} />}
+            loading={<Note text={t('Đang mở PDF...')} />}
             error={<Note text={t('Không mở được file PDF này.')} />}
           >
-            <Page key={page} pageNumber={page} width={width * zoom} loading={<Note text={`TRANG ${page}...`} />} className="animate-pop" />
+            <Page key={page} pageNumber={page} width={width * zoom} loading={<Note text={t('Đang mở trang {0}...', page)} />} />
           </Document>
         )}
       </div>

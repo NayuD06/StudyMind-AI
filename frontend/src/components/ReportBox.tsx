@@ -20,19 +20,19 @@ export default function ReportBox({ docId }: { docId: number }) {
   }
 
   if (send.isSuccess) {
-    return <p className="animate-pop border-l-4 border-ink bg-mark/40 px-3 py-2 text-sm">{t('Đã gửi báo cáo. Quản trị viên sẽ xem xét và báo lại cho bạn.')}</p>
+    return <p className="border-l-4 border-ink bg-mark/40 px-3 py-2 text-sm">{t('Đã gửi báo cáo. Quản trị viên sẽ xem xét và báo lại cho bạn.')}</p>
   }
 
   if (!open) {
     return (
-      <button onClick={() => setOpen(true)} className="link-wipe font-mono text-xs text-muted hover:text-ink">
-        {t('⚑ BÁO CÁO VI PHẠM')}
+      <button onClick={() => setOpen(true)} className="text-sm text-muted underline underline-offset-4 hover:text-ink">
+        {t('Báo cáo vi phạm')}
       </button>
     )
   }
 
   return (
-    <form onSubmit={submit} className="animate-pop space-y-3">
+    <form onSubmit={submit} className="space-y-3">
       <p className="font-display font-bold">{t('Báo cáo tài liệu này')}</p>
       <div className="flex flex-wrap gap-2">
         {REASONS.map((item) => (

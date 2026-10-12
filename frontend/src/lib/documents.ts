@@ -53,8 +53,25 @@ export async function fetchSubjects() {
   return (await api.get<{ items: Subject[] }>('/subjects')).data.items
 }
 
-export async function fetchDocuments(params: { q?: string; subjectId?: number; sort?: 'new' | 'popular'; page?: number; limit?: number }) {
+export type DocQuery = {
+  q?: string
+  subjectId?: number
+  uploaderId?: number
+  school?: string
+  major?: string
+  minRating?: number
+  sort?: 'new' | 'popular'
+  page?: number
+  limit?: number
+}
+
+export async function fetchDocuments(params: DocQuery) {
   return (await api.get<DocList>('/documents', { params })).data
+}
+
+// Các trường và ngành đang có tài liệu công khai, để đổ vào bộ lọc
+export async function fetchFacets() {
+  return (await api.get<{ schools: string[]; majors: string[] }>('/documents/facets')).data
 }
 
 // Lấy file qua axios (kèm token) để tài liệu chưa duyệt của chính mình vẫn mở được

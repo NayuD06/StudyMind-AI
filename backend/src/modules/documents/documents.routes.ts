@@ -29,6 +29,10 @@ documentsRouter.get('/', async (req, res) => {
   res.json(await documentsService.listPublicDocuments(listDocumentsSchema.parse(req.query)))
 })
 
+documentsRouter.get('/facets', async (_req, res) => {
+  res.json(await documentsService.listFacets())
+})
+
 documentsRouter.get('/mine', requireAuth, async (req, res) => {
   res.json({ items: await documentsService.listMyDocuments(req.user!) })
 })
@@ -59,6 +63,12 @@ documentsRouter.get('/:id/file', optionalAuth, async (req, res) => {
   if (download) return res.download(file.path, file.fileName)
   res.set('Content-Disposition', 'inline')
   res.sendFile(file.path)
+})
+
+// Gửi dạng JSON, cùng các trường với form đăng tài liệu (trừ file)
+documentsRouter.put('/:id', requireAuth, async (req, res) => {
+  const { id } = idParamSchema.parse(req.params)
+  res.json({ document: await documentsService.updateDocument(id, createDocumentSchema.parse(req.body), req.user!) })
 })
 
 documentsRouter.put('/:id/rating', requireAuth, async (req, res) => {

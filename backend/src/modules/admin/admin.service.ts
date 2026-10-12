@@ -9,6 +9,7 @@ import type { listLogsSchema, listUsersSchema, subjectSchema, updateUserSchema }
 const DAY_MS = 24 * 60 * 60 * 1000
 const USERS_PER_PAGE = 20
 const LOGS_PER_PAGE = 30
+const TOP_ROWS = 5
 
 export async function getStats() {
   // Mốc 0 giờ của 7 ngày gần nhất, tính cả hôm nay
@@ -16,7 +17,7 @@ export async function getStats() {
   start.setHours(0, 0, 0, 0)
   start.setDate(start.getDate() - 6)
 
-  const [users, lockedUsers, byStatus, subjects, downloads, openReports, recent] = await Promise.all([
+  const [users, lockedUsers, byStatus, subjects, downloads, openReports, recent, signups, topDocuments, byUploader] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { isLocked: true } }),
     prisma.document.groupBy({ by: ['moderationStatus'], _count: true }),
@@ -24,14 +25,42 @@ export async function getStats() {
     prisma.download.count(),
     prisma.report.count({ where: { status: 'OPEN' } }),
     prisma.document.findMany({ where: { createdAt: { gte: start } }, select: { createdAt: true } }),
+    prisma.user.findMany({ where: { createdAt: { gte: start } }, select: { createdAt: true } }),
+    prisma.document.findMany({
+      where: { moderationStatus: 'APPROVED', isHidden: false },
+      select: { id: true, title: true, downloadCount: true, viewCount: true },
+      orderBy: [{ downloadCount: 'desc' }, { viewCount: 'desc' }],
+      take: TOP_ROWS,
+    }),
+    prisma.document.groupBy({
+      by: ['uploaderId'],
+      where: { moderationStatus: 'APPROVED', isHidden: false },
+      _count: true,
+      _sum: { downloadCount: true },
+      orderBy: [{ _count: { uploaderId: 'desc' } }, { _sum: { downloadCount: 'desc' } }],
+      take: TOP_ROWS,
+    }),
   ])
 
   const count = (status: string) => byStatus.find((row) => row.moderationStatus === status)?._count ?? 0
-  const uploads = Array.from({ length: 7 }, (_, i) => ({ date: new Date(start.getTime() + i * DAY_MS), count: 0 }))
-  for (const doc of recent) {
-    const day = uploads[Math.floor((doc.createdAt.getTime() - start.getTime()) / DAY_MS)]
-    if (day) day.count++
+  // Đếm theo từng ngày trong 7 ngày gần nhất
+  const perDay = (rows: { createdAt: Date }[]) => {
+    const days = Array.from({ length: 7 }, (_, i) => ({ date: new Date(start.getTime() + i * DAY_MS), count: 0 }))
+    for (const row of rows) {
+      const day = days[Math.floor((row.createdAt.getTime() - start.getTime()) / DAY_MS)]
+      if (day) day.count++
+    }
+    return days
   }
+
+  const names = await prisma.user.findMany({
+    where: { id: { in: byUploader.map((row) => row.uploaderId) } },
+    select: { id: true, name: true, email: true },
+  })
+  const topUploaders = byUploader.map((row) => {
+    const user = names.find((item) => item.id === row.uploaderId)
+    return { id: row.uploaderId, name: user?.name ?? '', email: user?.email ?? '', documents: row._count, downloads: row._sum.downloadCount ?? 0 }
+  })
 
   return {
     users,
@@ -40,7 +69,10 @@ export async function getStats() {
     downloads,
     openReports,
     documents: { pending: count('PENDING'), approved: count('APPROVED'), rejected: count('REJECTED') },
-    uploads,
+    uploads: perDay(recent),
+    signups: perDay(signups),
+    topDocuments,
+    topUploaders,
   }
 }
 

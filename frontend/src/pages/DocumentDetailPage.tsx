@@ -103,7 +103,7 @@ export default function DocumentDetailPage() {
   }
 
   const doc = detail.data
-  if (!doc) return <p className="mx-auto max-w-6xl px-4 py-20 font-mono text-xs text-muted">{t('ĐANG TẢI...')}</p>
+  if (!doc) return <p className="mx-auto max-w-6xl px-4 py-20 text-sm text-muted">{t('Đang tải dữ liệu...')}</p>
 
   const isPublic = doc.moderationStatus === 'APPROVED'
   const isMine = user?.id === doc.uploader.id
@@ -111,12 +111,12 @@ export default function DocumentDetailPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
-      <Link to="/documents" className="link-wipe font-mono text-xs">
-        {t('← THƯ VIỆN')}
+      <Link to="/documents" className="link-wipe text-sm">
+        {t('← Thư viện')}
       </Link>
 
       {!isPublic && (
-        <p className="mt-4 animate-pop border-l-4 border-flame bg-mark/40 px-3 py-2 text-sm">
+        <p className="mt-4 border-l-4 border-flame bg-mark/40 px-3 py-2 text-sm">
           {STATUS_NOTE[doc.moderationStatus as keyof typeof STATUS_NOTE]}
           {doc.rejectReason && <b> {t('Lý do:')} {doc.rejectReason}</b>}
         </p>
@@ -124,15 +124,13 @@ export default function DocumentDetailPage() {
 
       <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          <p className="font-mono text-xs text-muted">
-            <span className="bg-ink px-1.5 py-0.5 text-paper">{subjectCode(doc)}</span>{' '}
+          <p className="text-sm text-muted">
+            <span className="bg-ink px-1.5 py-0.5 font-mono text-xs text-paper">{subjectCode(doc)}</span>{' '}
             {[subjectName(doc), doc.school].filter(Boolean).join(' · ') || t('Chưa phân môn')}
           </p>
-          <h1 className="mt-3 overflow-hidden font-display text-4xl font-bold">
-            <span className="block animate-rise">{doc.title}</span>
-          </h1>
-          <p className="mt-2 font-mono text-xs text-muted">
-            {t('{0} trang', doc.pageCount ?? '?')} · ★ {ratingText(doc.rating)} ({doc.rating.count}) · ↓ {t('{0} lượt tải', doc.downloadCount)} · {t('{0} lượt xem', doc.viewCount)}
+          <h1 className="mt-3 font-display text-3xl leading-tight font-bold sm:text-4xl">{doc.title}</h1>
+          <p className="mt-2 text-sm text-muted">
+            {t('{0} trang', doc.pageCount ?? '?')} · ★ {ratingText(doc.rating)} ({doc.rating.count}) · {t('{0} lượt tải', doc.downloadCount)} · {t('{0} lượt xem', doc.viewCount)}
           </p>
         </div>
 
@@ -192,19 +190,23 @@ export default function DocumentDetailPage() {
           </div>
 
           {tab === 'Thông tin' && (
-            <div className="flex-1 space-y-5 p-5">
+            <div className="animate-pop flex-1 space-y-5 p-5">
               <p className="text-sm whitespace-pre-line">{doc.description ?? <span className="text-muted">{t('Người đăng chưa viết mô tả.')}</span>}</p>
 
-              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 border-t-2 border-ink pt-4 font-mono text-xs">
-                <dt className="text-muted">{t('NGƯỜI ĐĂNG')}</dt>
-                <dd>{doc.uploader.name}</dd>
-                <dt className="text-muted">{t('NGÀY ĐĂNG')}</dt>
+              <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 border-t-2 border-ink pt-4 text-sm">
+                <dt className="text-muted">{t('Người đăng')}</dt>
+                <dd>
+                  <Link to={`/users/${doc.uploader.id}`} className="link-wipe">
+                    {doc.uploader.name}
+                  </Link>
+                </dd>
+                <dt className="text-muted">{t('Ngày đăng')}</dt>
                 <dd>{new Date(doc.createdAt).toLocaleDateString(locale)}</dd>
-                <dt className="text-muted">{t('DUNG LƯỢNG')}</dt>
+                <dt className="text-muted">{t('Dung lượng')}</dt>
                 <dd>{fileSize(doc.fileSize)}</dd>
                 {doc.major && (
                   <>
-                    <dt className="text-muted">{t('NGÀNH')}</dt>
+                    <dt className="text-muted">{t('Ngành')}</dt>
                     <dd>{doc.major}</dd>
                   </>
                 )}
@@ -231,12 +233,12 @@ export default function DocumentDetailPage() {
                           onClick={() => rate.mutate(score)}
                           disabled={rate.isPending}
                           aria-label={`${score} sao`}
-                          className={`grid size-9 place-items-center border-2 border-ink text-lg transition duration-150 hover:-translate-y-0.5 ${score <= stars ? 'bg-mark' : 'bg-sheet text-ink/30'}`}
+                          className={`grid size-9 place-items-center border-2 border-ink text-lg transition-colors ${score <= stars ? 'bg-mark' : 'bg-sheet text-ink/30'}`}
                         >
                           ★
                         </button>
                       ))}
-                      {doc.myRating && <span className="ml-2 font-mono text-xs text-muted">{t('ĐÃ CHẤM')} {doc.myRating}/5</span>}
+                      {doc.myRating && <span className="ml-2 text-sm text-muted">{t('Bạn đã chấm')} {doc.myRating}/5</span>}
                     </div>
                   )}
                 </div>
@@ -256,7 +258,7 @@ export default function DocumentDetailPage() {
                 {messages.map((message, i) => (
                   <p
                     key={i}
-                    className={`w-fit max-w-[85%] animate-pop px-3 py-2 text-sm ${message.role === 'user' ? 'ml-auto bg-ink text-paper' : 'border-l-4 border-flame bg-paper'}`}
+                    className={`w-fit max-w-[85%] px-3 py-2 text-sm ${message.role === 'user' ? 'ml-auto bg-ink text-paper' : 'border-l-4 border-flame bg-paper'}`}
                   >
                     {message.text}
                   </p>
@@ -270,7 +272,7 @@ export default function DocumentDetailPage() {
                   className="min-w-0 flex-1 bg-sheet px-4 py-3 outline-none"
                 />
                 <button className="border-l-2 border-ink bg-flame px-5 font-display font-bold transition-colors hover:bg-ink hover:text-paper">
-                  {t('GỬI')}
+                  {t('Gửi')}
                 </button>
               </form>
             </>

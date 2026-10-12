@@ -1,13 +1,16 @@
-// Dải chữ chạy ngang vô tận; nội dung được lặp 2 lần để nối liền mạch
+// Dải chữ chạy ngang liên tục, dừng khi rê chuột. Nội dung lặp hai lần để nối liền mạch
 export default function Marquee({ items }: { items: string[] }) {
-  const row = [...items, ...items]
+  if (items.length === 0) return null
+  // Ít mục thì nhân lên cho đủ kín màn hình rộng
+  const row = Array.from({ length: Math.ceil(12 / items.length) }, () => items).flat()
+
   return (
-    <div className="surface-dark overflow-hidden border-y-2 border-ink bg-ink py-3 text-paper">
-      <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
-        {row.map((item, i) => (
-          <span key={i} className="flex items-center font-display text-lg font-bold uppercase">
-            <span className="px-6">{item}</span>
-            <span className="size-2.5 rotate-45 bg-mark" />
+    <div className="surface-dark overflow-hidden border-y-2 border-ink bg-ink py-3 text-paper" aria-hidden>
+      <div className="marquee flex w-max">
+        {[...row, ...row].map((item, i) => (
+          <span key={i} className="flex items-center font-display font-bold whitespace-nowrap">
+            {item}
+            <span className="mx-6 inline-block size-2 rotate-45 bg-flame" />
           </span>
         ))}
       </div>

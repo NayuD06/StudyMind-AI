@@ -129,6 +129,8 @@ async function main() {
       data: {
         title: item.title,
         description: item.description,
+        school: uploader.school,
+        major: uploader.major,
         storageKey,
         fileName: `${plain(item.title).replace(/[^A-Za-z0-9]+/g, '-').toLowerCase()}.pdf`,
         fileSize: buffer.length,

@@ -1,16 +1,15 @@
 import { useEffect, useState } from 'react'
 
-// Số chạy từ 0 lên giá trị thật khi dữ liệu về
-export function useCountUp(target: number, duration = 900) {
+// Số chạy từ 0 lên giá trị thật trong khoảng nửa giây (bỏ qua nếu người dùng tắt chuyển động)
+export function useCountUp(target: number, duration = 600) {
   const [value, setValue] = useState(0)
 
   useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     let frame = 0
-    const startedAt = performance.now()
-    const length = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : duration
-    const tick = (now: number) => {
-      const progress = Math.min((now - startedAt) / length, 1)
-      // Chậm dần về cuối
+    const start = performance.now()
+    function tick(now: number) {
+      const progress = Math.min((now - start) / duration, 1)
       setValue(Math.round(target * (1 - (1 - progress) ** 3)))
       if (progress < 1) frame = requestAnimationFrame(tick)
     }
@@ -18,5 +17,5 @@ export function useCountUp(target: number, duration = 900) {
     return () => cancelAnimationFrame(frame)
   }, [target, duration])
 
-  return value
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches ? target : value
 }

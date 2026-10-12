@@ -16,4 +16,10 @@ Thư mục này lưu lại những gì đã làm trên dự án, mỗi phần vi
 | [12-10-2026-giao-dien-toi-va-da-ngon-ngu.md](12-10-2026-giao-dien-toi-va-da-ngon-ngu.md) | Giao diện sáng/tối, tiếng Việt/tiếng Anh | Đã commit |
 | [12-10-2026-ci-cd.md](12-10-2026-ci-cd.md) | GitHub Actions: kiểm tra tự động và đóng gói bản phát hành | Đã commit |
 | [12-10-2026-sua-loi-phien-dang-nhap.md](12-10-2026-sua-loi-phien-dang-nhap.md) | Sửa lỗi bị đăng xuất khi mở hai tab và khi quản trị viên đổi quyền | Đã commit |
+| [12-10-2026-test-tu-dong.md](12-10-2026-test-tu-dong.md) | Bộ test tự động cho backend (55 test), chạy cả trên CI | Đã commit |
+| [12-10-2026-ho-so-sua-tai-lieu-bo-loc.md](12-10-2026-ho-so-sua-tai-lieu-bo-loc.md) | Hồ sơ, trang người đăng, sửa tài liệu, tìm kiếm và bộ lọc, thống kê quản trị | Đã commit |
+| [12-10-2026-quen-mat-khau.md](12-10-2026-quen-mat-khau.md) | Đặt lại mật khẩu qua email | Đã commit |
+| [12-10-2026-dong-goi-trien-khai.md](12-10-2026-dong-goi-trien-khai.md) | Dockerfile, nginx và docker compose để chạy bản đóng gói | Đã commit |
+| [12-10-2026-giao-dien-tu-nhien.md](12-10-2026-giao-dien-tu-nhien.md) | Bỏ trang trí thừa cho giao diện tự nhiên hơn, trang chủ dùng dữ liệu thật | Đã commit |
+| [12-10-2026-hieu-ung-giao-dien.md](12-10-2026-hieu-ung-giao-dien.md) | Hiệu ứng chuyển động cho trang sinh viên và trang quản trị | Đã commit |
 | [12-10-2026-ke-hoach-ai.md](12-10-2026-ke-hoach-ai.md) | Kế hoạch 4 bước cho phần AI (tìm kiếm ngữ nghĩa, RAG) | Chưa bắt đầu |

@@ -21,9 +21,9 @@ type ModerationItem = {
 }
 
 const TABS: { status: Status; label: string }[] = [
-  { status: 'PENDING', label: t('CHỜ DUYỆT') },
-  { status: 'APPROVED', label: t('ĐÃ DUYỆT') },
-  { status: 'REJECTED', label: t('TỪ CHỐI') },
+  { status: 'PENDING', label: t('Chờ duyệt') },
+  { status: 'APPROVED', label: t('Đã duyệt') },
+  { status: 'REJECTED', label: t('Bị từ chối') },
 ]
 
 const fileSize = (bytes: number) =>
@@ -84,7 +84,7 @@ export default function ModerationPage() {
 
   return (
     <>
-      <PageHeader code={t('02 · KIỂM DUYỆT')} title={t('Kiểm duyệt tài liệu')}>
+      <PageHeader title={t('Kiểm duyệt tài liệu')}>
         <div className="flex border-2 border-ink font-display text-sm font-bold">
           {TABS.map((tab) => (
             <button
@@ -109,8 +109,8 @@ export default function ModerationPage() {
           <div className="panel px-6 py-14 text-center text-muted">{t('Không có tài liệu nào ở mục này.')}</div>
         )}
 
-        {documents.data?.map((doc, i) => (
-          <article key={doc.id} className="panel animate-pop p-5" style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}>
+        {documents.data?.map((doc) => (
+          <article key={doc.id} className="panel p-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
                 <h2 className="font-display text-xl font-bold">{doc.title}</h2>
@@ -167,7 +167,7 @@ export default function ModerationPage() {
             )}
 
             {rejectingId === doc.id && (
-              <form onSubmit={(e) => reject(e, doc.id)} className="mt-4 flex animate-pop flex-wrap gap-3 border-t-2 border-dashed border-ink pt-4">
+              <form onSubmit={(e) => reject(e, doc.id)} className="mt-4 flex flex-wrap gap-3 border-t-2 border-dashed border-ink pt-4">
                 <input name="reason" required maxLength={500} autoFocus placeholder={t('Lý do từ chối (người đăng sẽ thấy)')} className="field min-w-0 flex-1" />
                 <button disabled={busy} className="btn btn-flame">
                   {t('Xác nhận từ chối')}

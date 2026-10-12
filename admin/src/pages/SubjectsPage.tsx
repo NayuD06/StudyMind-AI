@@ -49,7 +49,7 @@ export default function SubjectsPage() {
 
   return (
     <>
-      <PageHeader code={t('05 · MÔN HỌC')} title={t('Môn học')}>
+      <PageHeader title={t('Môn học')}>
         <form onSubmit={add} className="flex gap-3">
           <input name="name" required minLength={2} maxLength={120} placeholder={t('Tên môn học mới')} className="field w-64 py-2" />
           <button disabled={busy} className="btn btn-sm btn-ink">
@@ -66,9 +66,9 @@ export default function SubjectsPage() {
           <table className="table">
             <thead>
               <tr>
-                <th>{t('MÔN HỌC')}</th>
-                <th>{t('MÃ')}</th>
-                <th>{t('TÀI LIỆU')}</th>
+                <th>{t('Môn học')}</th>
+                <th>{t('Mã')}</th>
+                <th>{t('Tài liệu')}</th>
                 <th />
               </tr>
             </thead>
@@ -85,7 +85,7 @@ export default function SubjectsPage() {
                     )}
                   </td>
                   <td className="font-mono text-xs text-muted">{row.slug}</td>
-                  <td className="font-mono tabular-nums">{row._count.documents}</td>
+                  <td className="tabular-nums">{row._count.documents}</td>
                   <td>
                     <div className="flex justify-end gap-3 whitespace-nowrap">
                       {editingId === row.id ? (

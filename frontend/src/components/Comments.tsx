@@ -45,7 +45,7 @@ export default function Comments({ docId, canPost }: { docId: number; canPost: b
   return (
     <section className="panel shadow-hard">
       <h2 className="border-b-2 border-ink px-5 py-3 font-display font-bold">
-        {t('Bình luận')} <span className="font-mono text-xs font-normal text-muted">{comments.data?.total ?? ''}</span>
+        {t('Bình luận')} <span className="font-sans text-sm font-normal text-muted">{comments.data?.total ? `(${comments.data.total})` : ''}</span>
       </h2>
 
       {canPost &&
@@ -61,7 +61,7 @@ export default function Comments({ docId, canPost }: { docId: number; canPost: b
               className="field"
             />
             <div className="mt-3 flex items-center justify-between gap-4">
-              <span className="font-mono text-xs text-muted">
+              <span className="text-xs text-muted">
                 {text.length}/{MAX}
               </span>
               <button disabled={add.isPending || !text.trim()} className="btn btn-sm btn-ink disabled:opacity-50">
@@ -86,17 +86,17 @@ export default function Comments({ docId, canPost }: { docId: number; canPost: b
 
       <ul>
         {comments.data?.items.map((comment) => (
-          <li key={comment.id} className="animate-pop border-ink px-5 py-4 not-last:border-b-2">
+          <li key={comment.id} className="border-ink/15 px-5 py-4 not-last:border-b">
             <p className="flex items-baseline gap-3">
               <span className="font-display font-bold">{comment.user.name}</span>
-              <span className="font-mono text-xs text-muted">{new Date(comment.createdAt).toLocaleString(locale)}</span>
+              <span className="text-xs text-muted">{new Date(comment.createdAt).toLocaleString(locale)}</span>
               {(user?.id === comment.user.id || user?.role === 'ADMIN') && (
                 <button
                   onClick={() => remove.mutate(comment.id)}
                   disabled={remove.isPending}
-                  className="link-wipe ml-auto font-mono text-xs text-muted hover:text-ink"
+                  className="ml-auto text-xs text-muted underline underline-offset-4 hover:text-ink"
                 >
-                  {t('XÓA')}
+                  {t('Xóa')}
                 </button>
               )}
             </p>

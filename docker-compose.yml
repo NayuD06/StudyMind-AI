@@ -13,6 +13,11 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=$$MYSQL_ROOT_PASSWORD mysqladmin ping -h 127.0.0.1 -uroot --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
   qdrant:
     image: qdrant/qdrant
@@ -36,6 +41,47 @@ services:
       - hf_cache:/root/.cache/huggingface
     depends_on:
       - qdrant
+
+  # ----- Bản đóng gói để triển khai (xem doc/12-10-2026-dong-goi-trien-khai.md) -----
+  # Chỉ chạy khi gọi: docker compose --profile app up -d --build
+  # Khi phát triển hằng ngày vẫn dùng npm run dev như cũ, không cần hai dịch vụ này.
+  backend:
+    profiles: ["app"]
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: mysql://studymind:${MYSQL_PASSWORD}@mysql:3306/studymind
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-}
+      AI_SERVICE_KEY: ${AI_SERVICE_KEY:-}
+      AI_SERVICE_URL: http://ai-service:8000
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      CORS_ORIGIN: ${APP_URL:-http://localhost:8080},${ADMIN_URL:-http://localhost:8081}
+      # Đứng sau đúng một proxy là nginx của dịch vụ web bên dưới
+      TRUST_PROXY: 1
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      # Chỉ dùng cho lệnh tạo quản trị viên đầu tiên: docker compose exec backend npm run db:seed
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+    volumes:
+      - ./backend/uploads:/data/uploads
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  web:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80" # trang sinh viên
+      - "127.0.0.1:8081:81" # trang quản trị
+    depends_on:
+      - backend
 
 volumes:
   mysql_data:

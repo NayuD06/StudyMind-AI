@@ -8,9 +8,9 @@ import { fileSize, subjectName, type DocSummary } from '../lib/documents.ts'
 import { locale, t } from '../lib/i18n.ts'
 
 const STATUS = {
-  PENDING: { label: t('CHỜ DUYỆT'), tone: 'bg-mark' },
-  APPROVED: { label: t('ĐÃ DUYỆT'), tone: 'bg-ink text-paper' },
-  REJECTED: { label: t('BỊ TỪ CHỐI'), tone: 'bg-flame' },
+  PENDING: { label: t('Chờ duyệt'), tone: 'bg-mark' },
+  APPROVED: { label: t('Đã duyệt'), tone: 'bg-ink text-paper' },
+  REJECTED: { label: t('Bị từ chối'), tone: 'bg-flame' },
 }
 
 type Tab = 'mine' | 'favorites'
@@ -46,7 +46,7 @@ export default function MyDocumentsPage() {
       <div className="mx-auto max-w-3xl px-4 py-20">
         <h1 className="font-display text-4xl font-bold">{t('Cần đăng nhập để xem tài liệu của bạn')}</h1>
         <Link to="/login" className="btn btn-ink mt-6">
-          {t('Đăng nhập →')}
+          {t('Đăng nhập')}
         </Link>
       </div>
     )
@@ -56,21 +56,25 @@ export default function MyDocumentsPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <p className="flex justify-between font-mono text-xs text-muted">
-        <span>{t('/ CỦA TÔI')}</span>
-        <Link to="/account" className="link-wipe text-ink">
-          {t('TÀI KHOẢN & MẬT KHẨU →')}
-        </Link>
-      </p>
-      <h1 className="mt-2 overflow-hidden pb-1 font-display text-5xl font-bold">
-        <span className="block animate-rise">{t('Tài liệu của tôi')}</span>
-      </h1>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+        <h1 className="font-display text-4xl font-bold sm:text-5xl">{t('Tài liệu của tôi')}</h1>
+        <p className="flex gap-5 text-sm">
+          {user && (
+            <Link to={`/users/${user.id}`} className="underline underline-offset-4">
+              {t('Trang công khai')}
+            </Link>
+          )}
+          <Link to="/account" className="underline underline-offset-4">
+            {t('Tài khoản & mật khẩu')}
+          </Link>
+        </p>
+      </div>
 
-      <div className="mt-8 flex w-fit border-2 border-ink font-display text-sm font-bold">
+      <div className="mt-6 flex w-fit border-2 border-ink font-display text-sm font-bold">
         {(
           [
-            ['mine', t('ĐÃ ĐĂNG'), mine.data?.length],
-            ['favorites', t('ĐÃ LƯU'), favorites.data?.length],
+            ['mine', t('Đã đăng'), mine.data?.length],
+            ['favorites', t('Đã lưu'), favorites.data?.length],
           ] as const
         ).map(([value, label, count]) => (
           <button
@@ -99,10 +103,10 @@ export default function MyDocumentsPage() {
           {mine.data.map((doc) => {
             const status = STATUS[doc.moderationStatus]
             return (
-              <div key={doc.id} className="panel animate-pop flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
+              <div key={doc.id} className="panel flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4">
                 <div className="min-w-0 flex-1 basis-64">
-                  <p className="font-mono text-xs">
-                    <span className={`border-2 border-ink px-1.5 py-0.5 ${status.tone}`}>{status.label}</span>
+                  <p className="text-xs">
+                    <span className={`border-2 border-ink px-1.5 py-0.5 font-semibold ${status.tone}`}>{status.label}</span>
                     <span className="ml-3 text-muted">
                       {new Date(doc.createdAt).toLocaleDateString(locale)} · {fileSize(doc.fileSize)}
                     </span>
@@ -111,14 +115,14 @@ export default function MyDocumentsPage() {
                     {doc.title}
                   </Link>
                   <p className="text-sm text-muted">
-                    {subjectName(doc) ?? t('Chưa phân môn')} · {t('{0} trang', doc.pageCount ?? '?')} · ↓ {doc.downloadCount}
+                    {subjectName(doc) ?? t('Chưa phân môn')} · {t('{0} trang', doc.pageCount ?? '?')} · {t('{0} lượt tải', doc.downloadCount)}
                   </p>
                   {doc.rejectReason && <p className="mt-2 border-l-4 border-flame pl-3 text-sm">{t('Lý do từ chối:')} {doc.rejectReason}</p>}
                 </div>
 
                 {confirming === doc.id ? (
-                  <div className="flex animate-pop items-center gap-2">
-                    <span className="font-mono text-xs">{t('XÓA HẲN?')}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{t('Xóa hẳn?')}</span>
                     <button onClick={() => remove.mutate(doc.id)} disabled={remove.isPending} className="btn btn-sm btn-flame">
                       {t('Xóa')}
                     </button>
@@ -127,9 +131,14 @@ export default function MyDocumentsPage() {
                     </button>
                   </div>
                 ) : (
-                  <button onClick={() => setConfirming(doc.id)} className="btn btn-sm">
-                    {t('Xóa')}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <Link to={`/documents/${doc.id}/edit`} className="btn btn-sm">
+                      {doc.moderationStatus === 'REJECTED' ? t('Sửa & gửi lại') : t('Sửa')}
+                    </Link>
+                    <button onClick={() => setConfirming(doc.id)} className="btn btn-sm">
+                      {t('Xóa')}
+                    </button>
+                  </div>
                 )}
               </div>
             )
@@ -138,7 +147,7 @@ export default function MyDocumentsPage() {
             <div className="panel px-6 py-14 text-center">
               <p className="font-display text-2xl font-bold">{t('Bạn chưa đăng tài liệu nào')}</p>
               <Link to="/upload" className="btn btn-flame mt-6">
-                {t('Đăng tài liệu →')}
+                {t('Đăng tài liệu')}
               </Link>
             </div>
           )}
@@ -147,7 +156,7 @@ export default function MyDocumentsPage() {
 
       {tab === 'favorites' && favorites.data && (
         <>
-          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 stagger grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {favorites.data.map((doc) => (
               <DocCard key={doc.id} doc={doc} />
             ))}

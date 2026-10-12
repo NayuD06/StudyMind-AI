@@ -1,28 +1,20 @@
 import type { ReactNode } from 'react'
 
-type Props = { kicker: string; title: string; highlight: string; children: ReactNode }
+type Props = { title: string; note: string; children: ReactNode }
 
-// Khung chung cho trang đăng nhập và đăng ký: nửa trái là chữ lớn, nửa phải là form
-export default function AuthShell({ kicker, title, highlight, children }: Props) {
+// Khung chung cho các trang đăng nhập, đăng ký, quên mật khẩu: nửa trái là tiêu đề, nửa phải là form
+export default function AuthShell({ title, note, children }: Props) {
   return (
-    <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 lg:grid-cols-2 lg:py-20">
-      <div className="surface-dark relative overflow-hidden border-2 border-ink bg-ink p-8 text-paper lg:p-12">
-        <span className="absolute -top-10 -right-10 size-40 animate-float bg-flame" />
-        <span className="absolute right-16 bottom-8 size-16 rotate-45 bg-mark" />
-        <p className="relative font-mono text-xs text-paper/70">{kicker}</p>
-        <h1 className="relative mt-4 font-display text-5xl leading-tight font-bold">
-          <span className="block overflow-hidden">
-            <span className="block animate-rise">{title}</span>
-          </span>
-          <span className="block overflow-hidden pb-2">
-            <span className="block animate-rise text-mark" style={{ animationDelay: '120ms' }}>
-              {highlight}
-            </span>
-          </span>
-        </h1>
+    <div className="mx-auto grid max-w-5xl gap-8 px-4 py-12 lg:grid-cols-[1fr_1.1fr] lg:py-20">
+      <div className="surface-dark relative overflow-hidden border-2 border-ink bg-ink p-8 text-paper lg:p-10">
+        <span className="absolute top-0 right-0 size-14 bg-flame" />
+        <span className="drift absolute right-10 bottom-8 size-20 border-2 border-mark" />
+        <span className="drift absolute right-24 bottom-20 size-8 bg-mark [animation-delay:-4s]" />
+        <h1 className="page-in relative font-display text-4xl leading-tight font-bold lg:text-5xl">{title}</h1>
+        <p className="relative mt-4 max-w-xs text-paper/70">{note}</p>
       </div>
 
-      <div className="panel shadow-hard animate-pop self-center p-6 sm:p-8">{children}</div>
+      <div className="panel shadow-hard self-center p-6 sm:p-8">{children}</div>
     </div>
   )
 }

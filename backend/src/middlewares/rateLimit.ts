@@ -1,6 +1,8 @@
 import { ipKeyGenerator, rateLimit } from 'express-rate-limit'
+import { env } from '../config/env.js'
 
-const base = { standardHeaders: 'draft-8', legacyHeaders: false } as const
+// Khi chạy test tự động thì bỏ qua giới hạn, nếu không cả bộ test bị chặn sau vài lần đăng ký
+const base = { standardHeaders: 'draft-8', legacyHeaders: false, skip: () => env.NODE_ENV === 'test' } as const
 
 // Mức chung cho toàn bộ API
 export const apiLimiter = rateLimit({
@@ -40,6 +42,14 @@ export const registerLimiter = rateLimit({
   limit: 5,
   skipFailedRequests: true,
   message: { message: 'Bạn tạo quá nhiều tài khoản, thử lại sau một giờ.' },
+})
+
+// Xin đặt lại mật khẩu: đếm mọi lần gọi, vì mỗi lần là một thư gửi đi
+export const forgotLimiter = rateLimit({
+  ...base,
+  windowMs: 60 * 60_000,
+  limit: 5,
+  message: { message: 'Bạn yêu cầu quá nhiều lần, thử lại sau một giờ.' },
 })
 
 // Tải tài liệu lên: giới hạn theo tài khoản để không bị spam file (đặt sau requireAuth)

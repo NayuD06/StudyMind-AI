@@ -18,20 +18,14 @@
   --color-mark: #ffe24a;
   --color-flame: #ff4f2e;
 
-  --animate-rise: rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  --animate-pop: pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
-  --animate-grow: grow 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  --animate-blink: blink 1s steps(1) infinite;
+  --animate-pop: pop 0.2s ease-out both;
+  --animate-grow: grow 0.4s ease-out both;
+  --animate-grow-x: grow-x 0.4s ease-out both;
 
-  @keyframes rise {
-    from {
-      transform: translateY(110%);
-    }
-  }
   @keyframes pop {
     from {
       opacity: 0;
-      transform: translateY(12px) scale(0.96);
+      transform: translateY(6px);
     }
   }
   @keyframes grow {
@@ -39,9 +33,9 @@
       transform: scaleY(0);
     }
   }
-  @keyframes blink {
-    50% {
-      opacity: 0;
+  @keyframes grow-x {
+    from {
+      transform: scaleX(0);
     }
   }
 }
@@ -70,22 +64,22 @@ body {
     border: 2px solid var(--color-ink);
     background: var(--color-sheet);
     color: var(--color-ink);
-    padding: 0.7rem 1.2rem;
+    padding: 0.6rem 1.1rem;
     font-family: var(--font-display);
     font-weight: 700;
-    box-shadow: 4px 4px 0 var(--color-ink);
+    box-shadow: 3px 3px 0 var(--color-ink);
     transition:
-      transform 0.15s,
-      box-shadow 0.15s,
+      transform 0.1s,
+      box-shadow 0.1s,
       background-color 0.15s;
     cursor: pointer;
   }
   .btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 var(--color-ink);
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--color-ink);
   }
   .btn:active {
-    transform: translate(4px, 4px);
+    transform: translate(3px, 3px);
     box-shadow: 0 0 0 var(--color-ink);
   }
   .btn:disabled {
@@ -95,10 +89,10 @@ body {
   .btn-ink {
     background: var(--color-ink);
     color: var(--color-paper);
-    box-shadow: 4px 4px 0 var(--color-flame);
+    box-shadow: 3px 3px 0 var(--color-flame);
   }
   .btn-ink:hover {
-    box-shadow: 6px 6px 0 var(--color-flame);
+    box-shadow: 4px 4px 0 var(--color-flame);
   }
   .btn-flame {
     background: var(--color-flame);
@@ -106,7 +100,7 @@ body {
   .btn-sm {
     padding: 0.35rem 0.7rem;
     font-size: 0.8125rem;
-    box-shadow: 3px 3px 0 var(--color-ink);
+    box-shadow: 2px 2px 0 var(--color-ink);
   }
 
   .panel {
@@ -115,7 +109,7 @@ body {
     color: var(--color-ink);
   }
   .shadow-hard {
-    box-shadow: 6px 6px 0 var(--color-ink);
+    box-shadow: 4px 4px 0 var(--color-ink);
   }
 
   .field {
@@ -128,10 +122,10 @@ body {
     transition: box-shadow 0.15s;
   }
   .field:focus {
-    box-shadow: 4px 4px 0 var(--color-flame);
+    box-shadow: 3px 3px 0 var(--color-flame);
   }
 
-  /* Mục điều hướng ở thanh bên: vạch cam trượt vào từ trái */
+  /* Mục điều hướng ở thanh bên: vạch cam bên trái mọc ra khi rê chuột và ở mục đang mở */
   .nav-item {
     position: relative;
     display: flex;
@@ -142,9 +136,7 @@ body {
     font-family: var(--font-display);
     font-weight: 700;
     white-space: nowrap;
-    transition:
-      background-color 0.2s,
-      padding-left 0.2s;
+    transition: background-color 0.15s;
   }
   .nav-item::before {
     content: '';
@@ -158,14 +150,13 @@ body {
   .nav-item:hover,
   .nav-item.active {
     background: rgb(244 241 232 / 0.1);
-    padding-left: 1.6rem;
   }
   .nav-item:hover::before,
   .nav-item.active::before {
     transform: scaleY(1);
   }
 
-  /* Bảng dữ liệu: hàng đổi màu và nhô vạch đen bên trái khi rê chuột */
+  /* Bảng dữ liệu: hàng đổi màu khi rê chuột */
   .table {
     width: 100%;
     border-collapse: collapse;
@@ -176,8 +167,7 @@ body {
     background: var(--color-ink);
     color: var(--color-paper);
     padding: 0.6rem 1rem;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
     font-weight: 600;
     white-space: nowrap;
   }
@@ -186,23 +176,15 @@ body {
     padding: 0.75rem 1rem;
     vertical-align: middle;
   }
-  .table tbody tr {
-    box-shadow: inset 0 0 0 var(--color-ink);
-    transition:
-      background-color 0.15s,
-      box-shadow 0.15s;
-  }
   .table tbody tr:hover {
-    background: rgb(255 226 74 / 0.3);
-    box-shadow: inset 5px 0 0 var(--color-ink);
+    background: rgb(255 226 74 / 0.25);
   }
 
   .tag {
     display: inline-block;
     border: 1.5px solid var(--color-ink);
     padding: 0.05rem 0.45rem;
-    font-family: var(--font-mono);
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 600;
     white-space: nowrap;
   }
@@ -251,6 +233,100 @@ body {
 @keyframes theme-wipe {
   from {
     clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* ---------- Hiệu ứng chuyển động ---------- */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+}
+
+@layer components {
+  /* Trang mới trượt nhẹ lên mỗi khi đổi mục */
+  .page-in {
+    animation: rise-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+  .stagger > * {
+    animation: rise-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+  .stagger > :nth-child(2) {
+    animation-delay: 60ms;
+  }
+  .stagger > :nth-child(3) {
+    animation-delay: 120ms;
+  }
+  .stagger > :nth-child(4) {
+    animation-delay: 180ms;
+  }
+  .stagger > :nth-child(5) {
+    animation-delay: 240ms;
+  }
+  .stagger > :nth-child(6) {
+    animation-delay: 300ms;
+  }
+  .stagger > :nth-child(7) {
+    animation-delay: 360ms;
+  }
+  .stagger > :nth-child(8) {
+    animation-delay: 420ms;
+  }
+
+  /* Hàng trong bảng vào lần lượt */
+  .table tbody tr {
+    animation: row-in 0.3s ease-out backwards;
+  }
+  .table tbody tr:nth-child(2) {
+    animation-delay: 30ms;
+  }
+  .table tbody tr:nth-child(3) {
+    animation-delay: 60ms;
+  }
+  .table tbody tr:nth-child(4) {
+    animation-delay: 90ms;
+  }
+  .table tbody tr:nth-child(5) {
+    animation-delay: 120ms;
+  }
+  .table tbody tr:nth-child(6) {
+    animation-delay: 150ms;
+  }
+  .table tbody tr:nth-child(7) {
+    animation-delay: 180ms;
+  }
+  .table tbody tr:nth-child(8) {
+    animation-delay: 210ms;
+  }
+  .table tbody tr:nth-child(9) {
+    animation-delay: 240ms;
+  }
+  .table tbody tr:nth-child(10) {
+    animation-delay: 270ms;
+  }
+  .table tbody tr:nth-child(11) {
+    animation-delay: 300ms;
+  }
+  .table tbody tr:nth-child(12) {
+    animation-delay: 330ms;
+  }
+
+  /* Ô số liệu nhấc lên khi rê chuột */
+  .tile {
+    transition:
+      transform 0.15s,
+      box-shadow 0.15s;
+  }
+  .tile:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 var(--color-ink);
   }
 }
 

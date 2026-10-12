@@ -33,13 +33,13 @@ export default function AccountPage() {
 
   return (
     <>
-      <PageHeader code={t('07 · TÀI KHOẢN')} title={t('Tài khoản')}>
-        <p className="font-mono text-xs text-muted">{user?.email}</p>
+      <PageHeader title={t('Tài khoản')}>
+        <p className="text-sm text-muted">{user?.email}</p>
       </PageHeader>
 
       {error && <ErrorNote message={error} />}
       {done && (
-        <p role="status" className="mb-4 animate-pop border-l-4 border-ink bg-mark/40 px-3 py-2 text-sm">
+        <p role="status" className="mb-4 border-l-4 border-ink bg-mark/40 px-3 py-2 text-sm">
           {t('Đã đổi mật khẩu. Các thiết bị khác đã bị đăng xuất.')}
         </p>
       )}

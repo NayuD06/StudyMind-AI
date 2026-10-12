@@ -3,12 +3,12 @@
 export const DEMO_DOMAIN = 'demo.studymind.local'
 
 export const STUDENTS = [
-  { name: 'Nguyễn Minh Anh', email: `minhanh@${DEMO_DOMAIN}`, major: 'Khoa học máy tính' },
-  { name: 'Trần Quốc Bảo', email: `quocbao@${DEMO_DOMAIN}`, major: 'Kỹ thuật phần mềm' },
-  { name: 'Lê Thu Hà', email: `thuha@${DEMO_DOMAIN}`, major: 'Hệ thống thông tin' },
-  { name: 'Phạm Đức Huy', email: `duchuy@${DEMO_DOMAIN}`, major: 'Mạng máy tính' },
-  { name: 'Võ Ngọc Lan', email: `ngoclan@${DEMO_DOMAIN}`, major: 'Trí tuệ nhân tạo' },
-  { name: 'Đặng Gia Khánh', email: `giakhanh@${DEMO_DOMAIN}`, major: 'Kỹ thuật phần mềm' },
+  { name: 'Nguyễn Minh Anh', email: `minhanh@${DEMO_DOMAIN}`, major: 'Khoa học máy tính', school: 'ĐH Bách khoa' },
+  { name: 'Trần Quốc Bảo', email: `quocbao@${DEMO_DOMAIN}`, major: 'Kỹ thuật phần mềm', school: 'ĐH Công nghệ thông tin' },
+  { name: 'Lê Thu Hà', email: `thuha@${DEMO_DOMAIN}`, major: 'Hệ thống thông tin', school: 'ĐH Bách khoa' },
+  { name: 'Phạm Đức Huy', email: `duchuy@${DEMO_DOMAIN}`, major: 'Mạng máy tính', school: 'ĐH Công nghệ thông tin' },
+  { name: 'Võ Ngọc Lan', email: `ngoclan@${DEMO_DOMAIN}`, major: 'Trí tuệ nhân tạo', school: 'ĐH Khoa học tự nhiên' },
+  { name: 'Đặng Gia Khánh', email: `giakhanh@${DEMO_DOMAIN}`, major: 'Kỹ thuật phần mềm', school: 'ĐH Khoa học tự nhiên' },
 ]
 
 export const COMMENTS = [

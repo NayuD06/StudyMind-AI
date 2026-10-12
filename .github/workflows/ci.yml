@@ -39,7 +39,7 @@ jobs:
       - run: npm run build
 
   backend:
-    name: backend (build + migration)
+    name: backend (build + migration + test)
     runs-on: ubuntu-latest
     # MySQL trống, chỉ sống trong lượt chạy này: dùng để thử áp toàn bộ migration từ đầu
     services:
@@ -74,11 +74,15 @@ jobs:
       - run: npx prisma generate
       - name: Áp migration lên database trống
         run: npx prisma migrate deploy
-      - name: Tạo database phụ để so sánh schema
-        run: mysql -h 127.0.0.1 -uroot -pci-only-root -e "CREATE DATABASE IF NOT EXISTS studymind_shadow"
+      - name: Tạo database phụ để so sánh schema và database cho bộ test
+        run: mysql -h 127.0.0.1 -uroot -pci-only-root -e "CREATE DATABASE IF NOT EXISTS studymind_shadow; CREATE DATABASE IF NOT EXISTS studymind_test"
       - name: schema.prisma phải khớp với migration (quên tạo migration thì hỏng ở đây)
         run: npx prisma migrate diff --from-migrations prisma/migrations --to-schema-datamodel prisma/schema.prisma --shadow-database-url "$SHADOW_DATABASE_URL" --exit-code
       - run: npm run build
+      - name: Kiểm tra kiểu của bộ test
+        run: npx tsc -p tests
+      - name: Chạy test (trên database studymind_test)
+        run: npm test
 
   ai-service:
     name: ai-service (cú pháp Python)

@@ -17,36 +17,12 @@
   --color-mark: #ffe24a;
   --color-flame: #ff4f2e;
 
-  --animate-marquee: marquee 30s linear infinite;
-  --animate-rise: rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  --animate-pop: pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
-  --animate-blink: blink 1s steps(1) infinite;
-  --animate-float: float 6s ease-in-out infinite;
+  --animate-pop: pop 0.2s ease-out both;
 
-  @keyframes marquee {
-    to {
-      transform: translateX(-50%);
-    }
-  }
-  @keyframes rise {
-    from {
-      transform: translateY(110%);
-    }
-  }
   @keyframes pop {
     from {
       opacity: 0;
-      transform: translateY(12px) scale(0.96);
-    }
-  }
-  @keyframes blink {
-    50% {
-      opacity: 0;
-    }
-  }
-  @keyframes float {
-    50% {
-      transform: translateY(-10px);
+      transform: translateY(6px);
     }
   }
   @keyframes sweep {
@@ -73,7 +49,7 @@ body {
 }
 
 @layer components {
-  /* Nút góc vuông, bóng cứng: nhấc lên khi hover, lún xuống khi bấm */
+  /* Nút góc vuông, bóng cứng, lún xuống khi bấm */
   .btn {
     display: inline-flex;
     align-items: center;
@@ -82,31 +58,31 @@ body {
     border: 2px solid var(--color-ink);
     background: var(--color-sheet);
     color: var(--color-ink);
-    padding: 0.7rem 1.2rem;
+    padding: 0.6rem 1.1rem;
     font-family: var(--font-display);
     font-weight: 700;
-    box-shadow: 4px 4px 0 var(--color-ink);
+    box-shadow: 3px 3px 0 var(--color-ink);
     transition:
-      transform 0.15s,
-      box-shadow 0.15s,
+      transform 0.1s,
+      box-shadow 0.1s,
       background-color 0.15s;
     cursor: pointer;
   }
   .btn:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 var(--color-ink);
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 var(--color-ink);
   }
   .btn:active {
-    transform: translate(4px, 4px);
+    transform: translate(3px, 3px);
     box-shadow: 0 0 0 var(--color-ink);
   }
   .btn-ink {
     background: var(--color-ink);
     color: var(--color-paper);
-    box-shadow: 4px 4px 0 var(--color-flame);
+    box-shadow: 3px 3px 0 var(--color-flame);
   }
   .btn-ink:hover {
-    box-shadow: 6px 6px 0 var(--color-flame);
+    box-shadow: 4px 4px 0 var(--color-flame);
   }
   .btn-flame {
     background: var(--color-flame);
@@ -122,13 +98,13 @@ body {
     color: var(--color-ink);
   }
   .shadow-hard {
-    box-shadow: 6px 6px 0 var(--color-ink);
+    box-shadow: 4px 4px 0 var(--color-ink);
   }
 
   /* Vệt bút dạ quang quét qua chữ */
   .mark {
     background: linear-gradient(var(--color-mark), var(--color-mark)) no-repeat 0 85% / 0% 100%;
-    animation: sweep 0.7s cubic-bezier(0.6, 0, 0.2, 1) 0.9s forwards;
+    animation: sweep 0.5s ease-out 0.2s forwards;
     padding: 0 0.15em;
   }
 
@@ -153,19 +129,6 @@ body {
     transform: scaleX(1);
   }
 
-  /* Hiện dần khi cuộn tới (xem components/Reveal.tsx) */
-  .reveal {
-    opacity: 0;
-    transform: translateY(28px);
-    transition:
-      opacity 0.6s,
-      transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-  .reveal.is-in {
-    opacity: 1;
-    transform: none;
-  }
-
   .field {
     width: 100%;
     border: 2px solid var(--color-ink);
@@ -176,12 +139,222 @@ body {
     transition: box-shadow 0.15s;
   }
   .field:focus {
-    box-shadow: 4px 4px 0 var(--color-flame);
+    box-shadow: 3px 3px 0 var(--color-flame);
   }
 
-  .text-outline {
-    color: transparent;
-    -webkit-text-stroke: 1.5px var(--color-paper);
+  /* Ô chọn nhỏ cho hàng bộ lọc ở thư viện */
+  .chip-select {
+    max-width: 16rem;
+    border: 2px solid var(--color-ink);
+    background-color: var(--color-sheet);
+    color: var(--color-ink);
+    padding: 0.35rem 0.6rem;
+    outline: none;
+    cursor: pointer;
+    text-overflow: ellipsis;
+    transition: box-shadow 0.15s;
+  }
+  .chip-select:focus-visible {
+    box-shadow: 3px 3px 0 var(--color-flame);
+  }
+  .chip-select option {
+    background: var(--color-sheet);
+    color: var(--color-ink);
+  }
+}
+
+/* ---------- Hiệu ứng chuyển động ---------- */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes sway {
+  50% {
+    transform: rotate(-3deg) translateY(-3px);
+  }
+}
+@keyframes drift {
+  50% {
+    transform: translate(-8px, 10px) rotate(8deg);
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes stripes {
+  to {
+    background-position: 40px 0;
+  }
+}
+
+@layer components {
+  /* Trang mới trượt nhẹ lên mỗi khi đổi đường dẫn */
+  .page-in {
+    animation: rise-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+
+  /* Các phần tử con hiện lần lượt (lưới thẻ tài liệu, khối đầu trang chủ) */
+  .stagger > * {
+    animation: rise-in 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+  }
+  .stagger > :nth-child(2) {
+    animation-delay: 55ms;
+  }
+  .stagger > :nth-child(3) {
+    animation-delay: 110ms;
+  }
+  .stagger > :nth-child(4) {
+    animation-delay: 165ms;
+  }
+  .stagger > :nth-child(5) {
+    animation-delay: 220ms;
+  }
+  .stagger > :nth-child(6) {
+    animation-delay: 275ms;
+  }
+  .stagger > :nth-child(7) {
+    animation-delay: 330ms;
+  }
+  .stagger > :nth-child(8) {
+    animation-delay: 385ms;
+  }
+  .stagger > :nth-child(9) {
+    animation-delay: 440ms;
+  }
+  .stagger > :nth-child(10) {
+    animation-delay: 495ms;
+  }
+  .stagger > :nth-child(11) {
+    animation-delay: 550ms;
+  }
+  .stagger > :nth-child(12) {
+    animation-delay: 605ms;
+  }
+
+  /* Hiện dần khi cuộn tới (components/Reveal.tsx) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.5s,
+      transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Thẻ tài liệu: nhấc lên, nghiêng nhẹ, góc giấy mở ra */
+  .doc-card {
+    transition:
+      transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.2s;
+  }
+  .doc-card:hover {
+    transform: translate(-3px, -4px) rotate(-0.6deg);
+    box-shadow: 7px 8px 0 var(--color-ink);
+  }
+  .doc-card .fold {
+    border-bottom: 22px solid var(--color-ink);
+    border-left: 22px solid transparent;
+    transition:
+      border-width 0.2s,
+      border-color 0.2s;
+  }
+  .doc-card:hover .fold {
+    border-bottom-width: 34px;
+    border-left-width: 34px;
+    border-bottom-color: var(--color-flame);
+  }
+  .doc-card .code {
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+  .doc-card:hover .code {
+    background: var(--color-flame);
+    color: var(--color-coal);
+  }
+
+  /* Dòng trong danh sách: vạch cam trượt xuống, chữ nhích sang phải */
+  .row-slide {
+    position: relative;
+    transition:
+      background-color 0.15s,
+      padding-left 0.2s;
+  }
+  .row-slide::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--color-flame);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.2s;
+  }
+  .row-slide:hover {
+    padding-left: 1.4rem;
+  }
+  .row-slide:hover::before {
+    transform: scaleY(1);
+  }
+
+  .marquee {
+    animation: marquee 40s linear infinite;
+  }
+  .marquee:hover {
+    animation-play-state: paused;
+  }
+
+  /* Nhãn dán nghiêng, đung đưa nhẹ */
+  .sticker {
+    transform: rotate(-6deg);
+    animation: sway 5s ease-in-out infinite;
+  }
+  .drift {
+    animation: drift 9s ease-in-out infinite;
+  }
+
+  /* Khung chờ khi đang tải dữ liệu */
+  .skeleton {
+    background: linear-gradient(100deg, transparent 30%, color-mix(in srgb, var(--color-ink) 12%, transparent) 50%, transparent 70%) 0 0 / 200% 100%;
+    background-color: color-mix(in srgb, var(--color-ink) 8%, transparent);
+    animation: shimmer 1.4s linear infinite;
+  }
+
+  /* Sọc chéo chạy chậm trên dải màu cam */
+  .stripes {
+    background-image: repeating-linear-gradient(-45deg, transparent 0 14px, rgb(21 20 15 / 0.07) 14px 28.28px);
+    background-size: 40px 100%;
+    animation: stripes 3s linear infinite;
+  }
+
+  /* Nút: vệt sáng lướt qua khi rê chuột */
+  .btn {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 40%, rgb(255 255 255 / 0.35) 50%, transparent 60%);
+    transform: translateX(-120%);
+    pointer-events: none;
+  }
+  .btn:hover::after {
+    transform: translateX(120%);
+    transition: transform 0.5s;
   }
 }
 

@@ -10,10 +10,11 @@ import { router } from './routes/index.js'
 
 export const app = express()
 
+app.set('trust proxy', env.TRUST_PROXY)
 app.use(helmet())
 // Chỉ các địa chỉ frontend khai báo trong CORS_ORIGIN mới được gọi API kèm cookie
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }))
-app.use(morgan('dev'))
+if (env.NODE_ENV !== 'test') app.use(morgan('dev'))
 app.use(express.json({ limit: '100kb' }))
 app.use(cookieParser())
 

@@ -31,31 +31,20 @@ export default function LoginPage() {
       <div className="surface-dark hidden flex-col justify-between bg-ink p-12 text-paper lg:flex">
         <p className="flex items-center gap-2 font-display text-lg font-bold">
           <span className="grid size-7 place-items-center bg-mark text-sm text-ink">S</span>
-          STUDYMIND
-          <span className="bg-flame px-1.5 text-xs text-ink">ADMIN</span>
+          StudyMind
+          <span className="bg-flame px-1.5 text-xs text-ink">{t('Quản trị')}</span>
         </p>
-        <div className="font-display text-6xl leading-[1.05] font-bold">
-          <p className="overflow-hidden">
-            <span className="block animate-rise">{t('Khu vực')}</span>
-          </p>
-          <p className="overflow-hidden">
-            <span className="block animate-rise text-mark [animation-delay:120ms]">{t('quản trị')}</span>
-          </p>
-          <p className="mt-6 font-mono text-sm font-normal text-paper/60">
-            {t('Duyệt tài liệu · quản lý người dùng · môn học')}
-            <span className="ml-1 inline-block h-4 w-2 animate-blink bg-flame align-middle" />
-          </p>
+        <div>
+          <p className="font-display text-5xl leading-tight font-bold">{t('Trang quản trị')}</p>
+          <p className="mt-4 max-w-sm text-paper/70">{t('Duyệt tài liệu, xử lý báo cáo, quản lý người dùng và môn học.')}</p>
         </div>
-        <p className="font-mono text-xs text-paper/50">{t('Chỉ dành cho tài khoản quản trị viên.')}</p>
+        <p className="text-sm text-paper/50">{t('Chỉ dành cho tài khoản quản trị viên.')}</p>
       </div>
 
       <div className="relative flex items-center justify-center px-4 py-16">
         <Prefs className="absolute top-4 right-4" />
-        <form onSubmit={submit} className={`panel shadow-hard w-full max-w-sm animate-pop space-y-5 p-8 ${loading ? 'invisible' : ''}`}>
-          <div>
-            <p className="font-mono text-xs text-muted">{t('/ ĐĂNG NHẬP')}</p>
-            <h1 className="mt-1 font-display text-3xl font-bold">{t('Quản trị viên')}</h1>
-          </div>
+        <form onSubmit={submit} className={`panel shadow-hard w-full max-w-sm space-y-5 p-8 ${loading ? 'invisible' : ''}`}>
+          <h1 className="font-display text-3xl font-bold">{t('Đăng nhập')}</h1>
 
           <label className="block">
             <span className="mb-1 block font-display font-bold">Email</span>
@@ -67,13 +56,13 @@ export default function LoginPage() {
           </label>
 
           {error && (
-            <p role="alert" className="animate-pop border-l-4 border-flame bg-paper px-3 py-2 text-sm">
+            <p role="alert" className="border-l-4 border-flame bg-paper px-3 py-2 text-sm">
               {error}
             </p>
           )}
 
           <button disabled={busy} className="btn btn-ink w-full">
-            {busy ? t('Đang kiểm tra...') : t('Đăng nhập →')}
+            {busy ? t('Đang kiểm tra...') : t('Đăng nhập')}
           </button>
         </form>
       </div>

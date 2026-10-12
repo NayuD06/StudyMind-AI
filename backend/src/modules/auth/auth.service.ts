@@ -6,8 +6,17 @@ import type { z } from 'zod'
 import { env } from '../../config/env.js'
 import { logAdminAction } from '../../lib/audit.js'
 import { HttpError } from '../../lib/httpError.js'
+import { sendMail } from '../../lib/mailer.js'
+import { notify } from '../../lib/notify.js'
 import { prisma } from '../../lib/prisma.js'
-import type { changePasswordSchema, loginSchema, registerSchema } from './auth.schema.js'
+import type {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  loginSchema,
+  profileSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from './auth.schema.js'
 
 const BCRYPT_COST = 12
 const ACCESS_TTL = '15m'
@@ -15,6 +24,9 @@ export const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000
 // Token vừa được đổi vẫn dùng lại được trong khoảng này: hai tab mở cùng lúc gửi chung một cookie,
 // tab đến sau không phải kẻ trộm. Đánh đổi: token bị lấy cắp cũng dùng lại được trong đúng khoảng đó.
 const REUSE_GRACE_MS = 10_000
+const RESET_TTL_MS = 30 * 60 * 1000
+// Mỗi tài khoản tối đa chừng này thư đặt lại mật khẩu mỗi giờ, để không ai dội thư vào hộp thư người khác
+const RESET_MAILS_PER_HOUR = 3
 
 // So sánh với mã băm giả khi email không tồn tại để thời gian phản hồi không làm lộ email nào đã đăng ký
 const DUMMY_HASH = bcrypt.hashSync('khong-ton-tai', BCRYPT_COST)
@@ -22,7 +34,7 @@ const DUMMY_HASH = bcrypt.hashSync('khong-ton-tai', BCRYPT_COST)
 const sha256 = (value: string) => createHash('sha256').update(value).digest('hex')
 
 function toPublicUser(user: User) {
-  return { id: user.id, name: user.name, email: user.email, role: user.role }
+  return { id: user.id, name: user.name, email: user.email, role: user.role, school: user.school, major: user.major }
 }
 
 async function startSession(user: User) {
@@ -115,6 +127,48 @@ export async function changePassword(userId: number, input: z.infer<typeof chang
 export async function logoutAll(userId: number) {
   // Làm tròn lên để cả token cấp trong cùng giây này cũng bị loại
   await endAllSessions(userId, new Date(Math.ceil(Date.now() / 1000) * 1000))
+}
+
+// Luôn kết thúc giống nhau dù email có tồn tại hay không, để không ai dò được email nào đã đăng ký.
+// Thư được gửi ngầm (không await) vì cùng lý do: thời gian phản hồi không được khác nhau.
+export async function requestPasswordReset(input: z.infer<typeof forgotPasswordSchema>) {
+  const user = await prisma.user.findUnique({ where: { email: input.email } })
+  if (!user || user.isLocked) return
+
+  const recent = await prisma.passwordResetToken.count({
+    where: { userId: user.id, createdAt: { gt: new Date(Date.now() - 60 * 60 * 1000) } },
+  })
+  if (recent >= RESET_MAILS_PER_HOUR) return
+
+  const token = randomBytes(32).toString('base64url')
+  await prisma.passwordResetToken.create({
+    data: { tokenHash: sha256(token), userId: user.id, expiresAt: new Date(Date.now() + RESET_TTL_MS) },
+  })
+  // Mã nằm sau dấu # nên trình duyệt không gửi nó lên máy chủ nào và nó không lọt vào log truy cập
+  const link = `${env.APP_URL}/reset-password#${token}`
+  sendMail({
+    to: user.email,
+    subject: 'Đặt lại mật khẩu StudyMind AI',
+    text: `Chào ${user.name},\n\nBấm vào liên kết sau để đặt mật khẩu mới (có hiệu lực 30 phút, dùng được một lần):\n${link}\n\nNếu bạn không yêu cầu, hãy bỏ qua thư này; mật khẩu của bạn không thay đổi.`,
+  }).catch((err) => console.error('Gửi thư đặt lại mật khẩu thất bại:', err))
+}
+
+export async function resetPassword(input: z.infer<typeof resetPasswordSchema>) {
+  const invalid = new HttpError(400, 'Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn')
+  const row = await prisma.passwordResetToken.findUnique({ where: { tokenHash: sha256(input.token) }, include: { user: true } })
+  if (!row || row.expiresAt < new Date() || row.user.isLocked) throw invalid
+
+  // Xóa trước rồi mới đổi mật khẩu: hai request cùng một mã thì chỉ một cái xóa được
+  const { count } = await prisma.passwordResetToken.deleteMany({ where: { id: row.id } })
+  if (count === 0) throw invalid
+  await prisma.passwordResetToken.deleteMany({ where: { userId: row.userId } })
+
+  await endAllSessions(row.userId, new Date(Math.ceil(Date.now() / 1000) * 1000), await bcrypt.hash(input.newPassword, BCRYPT_COST))
+  await notify(row.userId, 'Mật khẩu của bạn vừa được đặt lại qua email. Nếu không phải bạn, hãy đổi mật khẩu ngay.')
+}
+
+export async function updateProfile(userId: number, input: z.infer<typeof profileSchema>) {
+  return toPublicUser(await prisma.user.update({ where: { id: userId }, data: input }))
 }
 
 export async function getProfile(userId: number) {

@@ -112,18 +112,42 @@ export async function createDocument(
   }
 }
 
+const MAX_SEARCH_WORDS = 8
+
+// Tách từ khóa thành từng từ, tài liệu phải chứa đủ mọi từ (ở tiêu đề, mô tả hoặc tên môn, thứ tự bất kỳ).
+// Nhờ vậy "sql cơ bản" tìm ra "Cơ bản về SQL", điều mà so khớp nguyên cụm không làm được.
+function searchFilter(q: string): Prisma.DocumentWhereInput[] {
+  return q
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, MAX_SEARCH_WORDS)
+    // Prisma không tự thoát ký tự đại diện của LIKE, nên gõ "%" sẽ khớp mọi tài liệu
+    .map((word) => word.replace(/[\\%_]/g, '\\$&'))
+    .map((word) => ({
+      OR: [
+        { title: { contains: word } },
+        { description: { contains: word } },
+        { subjects: { some: { subject: { name: { contains: word } } } } },
+      ],
+    }))
+}
+
+// Điểm trung bình không phải một cột nên phải tính trước rồi lọc theo danh sách id
+async function idsRatedAtLeast(minRating: number) {
+  const groups = await prisma.rating.groupBy({ by: ['documentId'], having: { score: { _avg: { gte: minRating } } } })
+  return groups.map((group) => group.documentId)
+}
+
 export async function listPublicDocuments(query: z.infer<typeof listDocumentsSchema>) {
   const where: Prisma.DocumentWhereInput = {
     moderationStatus: 'APPROVED',
     isHidden: false,
-    ...(query.q && {
-      OR: [
-        { title: { contains: query.q } },
-        { description: { contains: query.q } },
-        { subjects: { some: { subject: { name: { contains: query.q } } } } },
-      ],
-    }),
+    ...(query.q && { AND: searchFilter(query.q) }),
     ...(query.subjectId && { subjects: { some: { subjectId: query.subjectId } } }),
+    ...(query.uploaderId && { uploaderId: query.uploaderId }),
+    ...(query.school && { school: query.school }),
+    ...(query.major && { major: query.major }),
+    ...(query.minRating && { id: { in: await idsRatedAtLeast(query.minRating) } }),
   }
   const [items, total] = await Promise.all([
     prisma.document.findMany({
@@ -136,6 +160,16 @@ export async function listPublicDocuments(query: z.infer<typeof listDocumentsSch
     prisma.document.count({ where }),
   ])
   return { items: await withRatings(items), total, page: query.page, limit: query.limit }
+}
+
+// Các trường và ngành đang có trong thư viện, để giao diện dựng ô lọc
+export async function listFacets() {
+  const shown = { moderationStatus: 'APPROVED', isHidden: false } as const
+  const [schools, majors] = await Promise.all([
+    prisma.document.findMany({ where: { ...shown, school: { not: null } }, select: { school: true }, distinct: ['school'], orderBy: { school: 'asc' }, take: 100 }),
+    prisma.document.findMany({ where: { ...shown, major: { not: null } }, select: { major: true }, distinct: ['major'], orderBy: { major: 'asc' }, take: 100 }),
+  ])
+  return { schools: schools.map((row) => row.school!), majors: majors.map((row) => row.major!) }
 }
 
 export async function listMyDocuments(user: AuthUser) {
@@ -172,6 +206,31 @@ export async function getDocument(id: number, user?: AuthUser) {
   ])
   const { isHidden: _isHidden, uploaderId: _uploaderId, ...rest } = document!
   return { ...rest, myRating: myRating?.score ?? null, isFavorite: !!favorite }
+}
+
+// Chỉ người đăng sửa được thông tin (không đổi được file PDF).
+// Tài liệu bị từ chối mà được sửa thì quay lại hàng chờ duyệt; tài liệu đã duyệt vẫn giữ nguyên trạng thái.
+export async function updateDocument(id: number, input: z.infer<typeof createDocumentSchema>, user: AuthUser) {
+  const document = await prisma.document.findUnique({ where: { id } })
+  if (!document) throw new HttpError(404, 'Không tìm thấy tài liệu')
+  if (document.uploaderId !== user.id) throw new HttpError(403, 'Không có quyền')
+  if (input.subjectId && !(await prisma.subject.findUnique({ where: { id: input.subjectId } }))) {
+    throw new HttpError(400, 'Môn học không tồn tại')
+  }
+
+  const resubmit = document.moderationStatus === 'REJECTED'
+  return prisma.document.update({
+    where: { id },
+    data: {
+      title: input.title,
+      description: input.description ?? null,
+      school: input.school ?? null,
+      major: input.major ?? null,
+      subjects: { deleteMany: {}, create: input.subjectId ? { subjectId: input.subjectId } : undefined },
+      ...(resubmit && { moderationStatus: 'PENDING', rejectReason: null, reviewedAt: null, reviewedById: null }),
+    },
+    select: summary,
+  })
 }
 
 export async function rateDocument(id: number, input: z.infer<typeof ratingSchema>, user: AuthUser) {

@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../lib/auth.tsx'
 import NotificationBell from './NotificationBell.tsx'
 import Prefs from './Prefs.tsx'
+import ScrollFx from './ScrollFx.tsx'
 import { t } from '../lib/i18n.ts'
 
 const NAV = [
@@ -21,14 +22,12 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-20 border-b-2 border-ink bg-paper/90 backdrop-blur">
-        <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 sm:gap-8">
+      <header className="sticky top-0 z-20 border-b-2 border-ink bg-paper">
+        <nav className="mx-auto flex max-w-6xl items-center gap-2 px-4 py-3 sm:gap-7">
           <Link to="/" className="group flex items-center gap-2 font-display text-xl font-bold">
-            <span className="grid size-7 place-items-center bg-ink text-sm text-mark transition-transform dark:bg-mark dark:text-coal duration-300 group-hover:rotate-90">
-              S
-            </span>
-            <span className="hidden sm:inline">STUDYMIND</span>
-            <span className="hidden bg-flame px-1.5 text-sm min-[420px]:inline">AI</span>
+            <span className="grid size-7 place-items-center bg-ink text-sm text-mark transition-transform duration-300 group-hover:-rotate-12 dark:bg-mark dark:text-coal">S</span>
+            <span className="hidden sm:inline">StudyMind</span>
+            <span className="hidden bg-flame px-1.5 text-sm text-coal min-[420px]:inline">AI</span>
           </Link>
 
           {NAV.map((item) => (
@@ -47,7 +46,7 @@ export default function Layout() {
           {user ? (
             <div className="ml-auto flex items-center gap-2 sm:gap-3 lg:ml-0">
               <NotificationBell userId={user.id} />
-              <Link to="/account" title={t('Tài khoản')} className="link-wipe hidden max-w-40 truncate font-mono text-xs sm:inline lg:max-w-28 xl:max-w-40">
+              <Link to="/account" title={t('Tài khoản')} className="link-wipe hidden max-w-28 truncate text-sm font-medium lg:inline xl:max-w-40">
                 {user.name}
               </Link>
               <button onClick={logout} className="btn btn-sm whitespace-nowrap max-sm:px-2">
@@ -62,21 +61,27 @@ export default function Layout() {
             </Link>
           )}
         </nav>
+        <ScrollFx />
       </header>
 
-      <main className="flex-1">
+      <main key={pathname} className="page-in flex-1">
         <Outlet />
       </main>
 
-      <footer className="surface-dark overflow-hidden border-t-2 border-ink bg-ink text-paper">
-        <div className="mx-auto max-w-6xl px-4 pt-10 pb-6">
-          <p className="text-outline font-display text-[13vw] leading-none font-bold whitespace-nowrap lg:text-[9rem]">
-            STUDYMIND AI
+      <footer className="surface-dark border-t-2 border-ink bg-ink text-paper">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-8 gap-y-4 px-4 py-6 text-sm">
+          <p>
+            <span className="font-display font-bold">StudyMind AI</span>
+            <span className="text-paper/60"> · {t('Đồ án chia sẻ tài liệu học tập')}</span>
           </p>
-          <Prefs onDark className="mt-6" />
-          <div className="mt-4 flex flex-wrap justify-between gap-2 border-t border-paper/30 pt-4 font-mono text-xs text-paper/70">
-            <span>{t('Đồ án: chia sẻ tài liệu học tập + tìm kiếm ngữ nghĩa + RAG')}</span>
-            <span>React · Node.js · MySQL · FastAPI · Qdrant</span>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+            <Link to="/documents" className="text-paper/80 hover:text-paper hover:underline">
+              {t('Thư viện')}
+            </Link>
+            <Link to="/upload" className="text-paper/80 hover:text-paper hover:underline">
+              {t('Đăng tài liệu')}
+            </Link>
+            <Prefs onDark />
           </div>
         </div>
       </footer>

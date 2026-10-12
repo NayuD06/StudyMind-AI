@@ -7,6 +7,8 @@ const SIX_HOURS = 6 * 60 * 60 * 1000
 export async function purgeExpiredRefreshTokens() {
   const { count } = await prisma.refreshToken.deleteMany({ where: { expiresAt: { lt: new Date() } } })
   if (count > 0) console.log(`Đã dọn ${count} refresh token hết hạn`)
+  // Mã đặt lại mật khẩu không ai dùng tới cũng dọn cùng lượt
+  await prisma.passwordResetToken.deleteMany({ where: { expiresAt: { lt: new Date() } } })
   return count
 }
 

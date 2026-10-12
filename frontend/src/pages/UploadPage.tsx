@@ -1,9 +1,9 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useState, type DragEvent, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import DocFields from '../components/DocFields.tsx'
 import { api, errorMessage } from '../lib/api.ts'
 import { useAuth } from '../lib/auth.tsx'
-import { fetchSubjects } from '../lib/documents.ts'
 import { t } from '../lib/i18n.ts'
 
 const MAX_BYTES = 20 * 1024 * 1024
@@ -20,7 +20,6 @@ export default function UploadPage() {
   const [result, setResult] = useState<UploadResult | null>(null)
 
   const client = useQueryClient()
-  const subjects = useQuery({ queryKey: ['subjects'], queryFn: fetchSubjects })
 
   // Kiểm tra sớm ở trình duyệt cho tiện; server vẫn kiểm tra lại nội dung file
   function pick(picked: File | undefined) {
@@ -59,18 +58,21 @@ export default function UploadPage() {
       <div className="mx-auto max-w-3xl px-4 py-20">
         <h1 className="font-display text-4xl font-bold">{t('Cần đăng nhập để đăng tài liệu')}</h1>
         <Link to="/login" className="btn btn-ink mt-6">
-          {t('Đăng nhập →')}
+          {t('Đăng nhập')}
         </Link>
       </div>
     )
   }
 
+  // Chờ biết người dùng là ai rồi mới vẽ form, để điền sẵn trường và ngành từ hồ sơ
+  if (!user) return null
+
   if (result) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16">
-        <div className="panel shadow-hard animate-pop p-8">
-          <p className="font-mono text-xs text-muted">{t('/ ĐÃ GỬI · CHỜ DUYỆT')}</p>
-          <h1 className="mt-2 font-display text-3xl font-bold">{result.document.title}</h1>
+        <div className="panel shadow-hard p-8">
+          <p className="text-sm text-muted">{t('Đã gửi, đang chờ duyệt')}</p>
+          <h1 className="mt-1 font-display text-3xl font-bold">{result.document.title}</h1>
           <p className="mt-3 text-muted">
             {t('Tài liệu sẽ hiện trong thư viện sau khi quản trị viên duyệt. Bạn theo dõi trạng thái ở mục "Của tôi".')}
           </p>
@@ -93,7 +95,7 @@ export default function UploadPage() {
 
           <div className="mt-8 flex flex-wrap gap-4">
             <Link to="/me" className="btn btn-ink">
-              {t('Xem tài liệu của tôi →')}
+              {t('Xem tài liệu của tôi')}
             </Link>
             <button
               onClick={() => {
@@ -112,10 +114,8 @@ export default function UploadPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
-      <p className="font-mono text-xs text-muted">{t('/ ĐĂNG TÀI LIỆU')}</p>
-      <h1 className="mt-2 overflow-hidden pb-1 font-display text-5xl font-bold">
-        <span className="block animate-rise">{t('Chia sẻ tài liệu')}</span>
-      </h1>
+      <h1 className="font-display text-4xl font-bold sm:text-5xl">{t('Đăng tài liệu')}</h1>
+      <p className="mt-2 text-muted">{t('Tài liệu sẽ hiện trong thư viện sau khi quản trị viên duyệt.')}</p>
 
       <form onSubmit={submit} className="mt-8 space-y-6">
         <label
@@ -125,7 +125,7 @@ export default function UploadPage() {
           }}
           onDragLeave={() => setDragging(false)}
           onDrop={drop}
-          className={`block cursor-pointer border-2 border-dashed border-ink px-6 py-14 text-center transition duration-200 ${dragging ? 'scale-[1.02] bg-mark' : 'bg-sheet hover:bg-mark/40'}`}
+          className={`block cursor-pointer border-2 border-dashed border-ink px-6 py-12 text-center transition-colors ${dragging ? 'bg-mark' : 'bg-sheet hover:bg-mark/30'}`}
         >
           <input
             type="file"
@@ -134,53 +134,27 @@ export default function UploadPage() {
             onChange={(e) => pick(e.target.files?.[0])}
           />
           {file ? (
-            <p key={file.name} className="animate-pop font-mono">
+            <p className="font-mono text-sm">
               {file.name} · {(file.size / 1024 / 1024).toFixed(1)} MB
             </p>
           ) : (
             <>
-              <p className="font-display text-2xl font-bold">{t('Kéo thả file PDF vào đây')}</p>
-              <p className="mt-2 text-muted">{t('hoặc bấm để chọn file · tối đa 20 MB')}</p>
+              <p className="font-display text-xl font-bold">{t('Kéo thả file PDF vào đây')}</p>
+              <p className="mt-1 text-sm text-muted">{t('hoặc bấm để chọn file · tối đa 20 MB')}</p>
             </>
           )}
         </label>
 
-        <label className="block">
-          <span className="mb-1 block font-display font-bold">{t('Tiêu đề')}</span>
-          <input name="title" required minLength={3} maxLength={200} className="field" />
-        </label>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <label className="block">
-            <span className="mb-1 block font-display font-bold">{t('Môn học')}</span>
-            <select name="subjectId" className="field" defaultValue="">
-              <option value="">{t('Chưa chọn')}</option>
-              {subjects.data?.map((subject) => (
-                <option key={subject.id} value={subject.id}>
-                  {t(subject.name)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="block">
-            <span className="mb-1 block font-display font-bold">{t('Trường')}</span>
-            <input name="school" maxLength={120} className="field" />
-          </label>
-        </div>
-
-        <label className="block">
-          <span className="mb-1 block font-display font-bold">{t('Mô tả')}</span>
-          <textarea name="description" rows={4} maxLength={2000} className="field" />
-        </label>
+        <DocFields defaults={{ school: user.school, major: user.major }} />
 
         {error && (
-          <p role="alert" className="animate-pop border-l-4 border-flame bg-sheet px-3 py-2 text-sm">
+          <p role="alert" className="border-l-4 border-flame bg-sheet px-3 py-2 text-sm">
             {error}
           </p>
         )}
 
         <button disabled={busy} className="btn btn-flame disabled:opacity-60">
-          {busy ? t('Đang tải lên...') : t('Đăng tài liệu →')}
+          {busy ? t('Đang tải lên...') : t('Gửi duyệt')}
         </button>
       </form>
     </div>

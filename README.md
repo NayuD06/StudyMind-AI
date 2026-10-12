@@ -68,8 +68,8 @@ Không file `.env` nào được commit. Mỗi file có một bản mẫu `.env.
 
 | File | Nội dung |
 |---|---|
-| `.env` (thư mục gốc) | Mật khẩu MySQL cho docker-compose |
-| `backend/.env` | Chuỗi kết nối MySQL, `JWT_ACCESS_SECRET`, `CORS_ORIGIN`, `AI_SERVICE_KEY`, `ADMIN_*` |
+| `.env` (thư mục gốc) | Mật khẩu MySQL cho docker-compose; thêm `JWT_ACCESS_SECRET`, `AI_SERVICE_KEY`, `APP_URL`... khi chạy bản đóng gói |
+| `backend/.env` | Chuỗi kết nối MySQL, `JWT_ACCESS_SECRET`, `CORS_ORIGIN`, `AI_SERVICE_KEY`, `ADMIN_*`, `APP_URL`, `SMTP_*` (gửi thư), `TRUST_PROXY` |
 | `ai-service/.env` | `ANTHROPIC_API_KEY`, `INTERNAL_API_KEY` (trùng `AI_SERVICE_KEY` của backend) |
 
 Sinh chuỗi ngẫu nhiên cho mật khẩu và khóa:
@@ -78,16 +78,35 @@ Sinh chuỗi ngẫu nhiên cho mật khẩu và khóa:
 node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 ```
 
+## Chạy test
+
+```bash
+cd backend
+npm test
+```
+
+55 test gọi thẳng API trên database riêng `studymind_test` (cùng MySQL trong Docker), không đụng dữ liệu thật. Database này được tạo sẵn khi MySQL khởi tạo lần đầu; nếu MySQL của bạn đã chạy từ trước thì tạo một lần bằng lệnh trong [doc/12-10-2026-test-tu-dong.md](doc/12-10-2026-test-tu-dong.md). CI chạy bộ test này ở mỗi lần push.
+
+## Chạy bản đóng gói bằng Docker
+
+```bash
+docker compose --profile app up -d --build
+```
+
+Trang sinh viên ở http://localhost:8080, trang quản trị ở http://localhost:8081. Cần điền thêm `JWT_ACCESS_SECRET` và `AI_SERVICE_KEY` vào `.env` ở thư mục gốc. Chi tiết và những việc phải làm khi đưa lên máy chủ thật: [doc/12-10-2026-dong-goi-trien-khai.md](doc/12-10-2026-dong-goi-trien-khai.md).
+
 ## Trang cho sinh viên
 
 | Trang | Chức năng |
 |---|---|
 | Trang chủ | Ô tìm kiếm, 4 tài liệu được tải nhiều nhất |
-| Thư viện | Tìm theo tiêu đề, mô tả, tên môn; lọc theo môn; sắp xếp mới nhất hoặc tải nhiều; phân trang |
+| Thư viện | Tìm theo tiêu đề, mô tả, tên môn (đủ mọi từ, không cần đúng thứ tự); lọc theo môn, trường, ngành, điểm đánh giá; sắp xếp mới nhất hoặc tải nhiều; phân trang |
 | Chi tiết tài liệu | Đọc PDF ngay trên trang (chuyển trang, phóng to), lưu lại, chấm 1 đến 5 sao, tải xuống, bình luận, báo cáo vi phạm |
-| Đăng tài liệu | Tải PDF lên, cảnh báo nếu có email hay số điện thoại |
-| Của tôi | Tài liệu đã đăng kèm trạng thái duyệt và lý do từ chối, tài liệu đã lưu |
-| Tài khoản | Đổi mật khẩu, đăng xuất mọi thiết bị (bấm vào tên trên thanh menu) |
+| Đăng tài liệu | Tải PDF lên, cảnh báo nếu có email hay số điện thoại; trường và ngành điền sẵn từ hồ sơ |
+| Của tôi | Tài liệu đã đăng kèm trạng thái duyệt và lý do từ chối, sửa thông tin tài liệu (tài liệu bị từ chối sửa xong sẽ được duyệt lại), tài liệu đã lưu |
+| Trang người đăng | Bấm tên người đăng ở trang tài liệu: tên, trường, ngành, số tài liệu, lượt tải và các tài liệu đã duyệt của họ (không hiện email) |
+| Tài khoản | Sửa hồ sơ (tên, trường, ngành), đổi mật khẩu, đăng xuất mọi thiết bị (bấm vào tên trên thanh menu) |
+| Quên mật khẩu | Nhận liên kết đặt lại mật khẩu qua email (ở trang đăng nhập). Chưa cấu hình `SMTP_*` thì thư được in ra màn hình chạy backend |
 | Chuông thông báo | Báo khi tài liệu được duyệt, bị từ chối, bị xóa, có bình luận mới, hoặc báo cáo đã được xử lý |
 
 Các tab Hỏi đáp, Tóm tắt, Ôn tập và chế độ tìm "Ngữ nghĩa" chưa hoạt động: chúng cần AI service.
@@ -96,7 +115,7 @@ Các tab Hỏi đáp, Tóm tắt, Ôn tập và chế độ tìm "Ngữ nghĩa" 
 
 | Trang | Chức năng |
 |---|---|
-| Tổng quan | Số tài liệu chờ duyệt, đã duyệt, người dùng, lượt tải; biểu đồ tài liệu đăng mới 7 ngày |
+| Tổng quan | Số tài liệu chờ duyệt, đã duyệt, người dùng, lượt tải; biểu đồ tài liệu đăng mới và người dùng mới 7 ngày; 5 tài liệu được tải nhiều nhất và 5 người đăng nhiều nhất |
 | Kiểm duyệt | Xem PDF, duyệt, từ chối kèm lý do, xóa tài liệu đã từ chối |
 | Báo cáo | Xem báo cáo vi phạm của sinh viên, gỡ tài liệu kèm lý do hoặc bỏ qua |
 | Người dùng | Tìm kiếm, cấp hoặc bỏ quyền quản trị, khóa và mở khóa |
@@ -128,7 +147,10 @@ Cả hai trang đều có nút đổi giao diện sáng/tối và nút đổi ti
 - Đổi mật khẩu phải nhập đúng mật khẩu hiện tại; đổi xong mọi phiên khác bị hủy ngay (xóa refresh token, và access token cấp trước mốc `tokensValidAfter` bị từ chối). "Đăng xuất mọi thiết bị" dùng cùng cơ chế.
 - Bình luận và báo cáo: chỉ trên tài liệu đã duyệt, cần đăng nhập; tối đa 20 bình luận/10 phút và 10 báo cáo/giờ mỗi người; không tự báo cáo tài liệu của mình, mỗi người một báo cáo đang mở cho mỗi tài liệu. Chỉ tác giả hoặc quản trị viên xóa được bình luận.
 - Nhật ký quản trị (bảng `admin_logs`): chỉ ghi thêm, không có API sửa hay xóa.
-- Refresh token hết hạn hoặc đã thu hồi được dọn tự động mỗi 6 giờ khi backend đang chạy.
+- Quên mật khẩu: mã đặt lại chỉ lưu dạng băm SHA-256, sống 30 phút, dùng một lần, nằm sau dấu `#` của liên kết nên không lọt vào nhật ký máy chủ. Email chưa đăng ký vẫn nhận cùng một câu trả lời; mỗi tài khoản tối đa 3 thư/giờ, mỗi IP 5 yêu cầu/giờ. Đặt lại xong mọi phiên bị hủy.
+- Sửa tài liệu: chỉ người đăng (quản trị viên cũng không sửa hộ); không đổi được file PDF.
+- `TRUST_PROXY` phải đúng số proxy đứng trước backend, nếu không giới hạn tần suất sẽ tính sai IP.
+- Refresh token và mã đặt lại mật khẩu hết hạn được dọn tự động mỗi 6 giờ khi backend đang chạy.
 
 ## Dữ liệu nằm ở đâu
 

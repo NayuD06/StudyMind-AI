@@ -17,19 +17,19 @@ type LogList = { items: LogRow[]; total: number; page: number; limit: number }
 
 // Nhãn và màu cho từng loại thao tác (xem backend/src/lib/audit.ts)
 const ACTIONS: Record<string, { label: string; tone: string }> = {
-  ADMIN_LOGIN: { label: t('ĐĂNG NHẬP'), tone: '' },
-  DOCUMENT_APPROVE: { label: t('DUYỆT TÀI LIỆU'), tone: 'bg-ink text-paper' },
-  DOCUMENT_REJECT: { label: t('TỪ CHỐI TÀI LIỆU'), tone: 'bg-flame' },
-  DOCUMENT_DELETE: { label: t('XÓA TÀI LIỆU'), tone: 'bg-flame' },
-  USER_LOCK: { label: t('KHÓA TÀI KHOẢN'), tone: 'bg-flame' },
-  USER_UNLOCK: { label: t('MỞ KHÓA'), tone: '' },
-  USER_ROLE: { label: t('ĐỔI VAI TRÒ'), tone: 'bg-mark' },
-  SUBJECT_CREATE: { label: t('THÊM MÔN'), tone: '' },
-  SUBJECT_UPDATE: { label: t('SỬA MÔN'), tone: '' },
-  SUBJECT_DELETE: { label: t('XÓA MÔN'), tone: 'bg-flame' },
-  COMMENT_DELETE: { label: t('XÓA BÌNH LUẬN'), tone: 'bg-flame' },
-  REPORT_RESOLVE: { label: t('GỠ THEO BÁO CÁO'), tone: 'bg-flame' },
-  REPORT_DISMISS: { label: t('BỎ QUA BÁO CÁO'), tone: '' },
+  ADMIN_LOGIN: { label: t('Đăng nhập'), tone: '' },
+  DOCUMENT_APPROVE: { label: t('Duyệt tài liệu'), tone: 'bg-ink text-paper' },
+  DOCUMENT_REJECT: { label: t('Từ chối tài liệu'), tone: 'bg-flame' },
+  DOCUMENT_DELETE: { label: t('Xóa tài liệu'), tone: 'bg-flame' },
+  USER_LOCK: { label: t('Khóa tài khoản'), tone: 'bg-flame' },
+  USER_UNLOCK: { label: t('Mở khóa'), tone: '' },
+  USER_ROLE: { label: t('Đổi vai trò'), tone: 'bg-mark' },
+  SUBJECT_CREATE: { label: t('Thêm môn'), tone: '' },
+  SUBJECT_UPDATE: { label: t('Sửa môn'), tone: '' },
+  SUBJECT_DELETE: { label: t('Xóa môn'), tone: 'bg-flame' },
+  COMMENT_DELETE: { label: t('Xóa bình luận'), tone: 'bg-flame' },
+  REPORT_RESOLVE: { label: t('Gỡ theo báo cáo'), tone: 'bg-flame' },
+  REPORT_DISMISS: { label: t('Bỏ qua báo cáo'), tone: '' },
 }
 
 export default function LogsPage() {
@@ -46,7 +46,7 @@ export default function LogsPage() {
 
   return (
     <>
-      <PageHeader code={t('06 · NHẬT KÝ')} title={t('Nhật ký quản trị')}>
+      <PageHeader title={t('Nhật ký quản trị')}>
         <p className="max-w-xs text-right text-sm text-muted">{t('Mọi thao tác của quản trị viên được ghi lại, không sửa hay xóa được.')}</p>
       </PageHeader>
 
@@ -58,19 +58,19 @@ export default function LogsPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>{t('THỜI GIAN')}</th>
-                  <th>{t('QUẢN TRỊ VIÊN')}</th>
-                  <th>{t('THAO TÁC')}</th>
-                  <th>{t('CHI TIẾT')}</th>
+                  <th>{t('Thời gian')}</th>
+                  <th>{t('Quản trị viên')}</th>
+                  <th>{t('Thao tác')}</th>
+                  <th>{t('Chi tiết')}</th>
                 </tr>
               </thead>
               <tbody>
                 {data.items.map((row) => (
                   <tr key={row.id}>
-                    <td className="font-mono text-xs whitespace-nowrap">{new Date(row.createdAt).toLocaleString(locale)}</td>
+                    <td className="text-sm whitespace-nowrap">{new Date(row.createdAt).toLocaleString(locale)}</td>
                     <td>
                       <p className="font-display font-bold">{row.admin.name}</p>
-                      <p className="font-mono text-xs text-muted">{row.admin.email}</p>
+                      <p className="text-xs text-muted">{row.admin.email}</p>
                     </td>
                     <td>
                       <span className={`tag ${ACTIONS[row.action]?.tone ?? ''}`}>{ACTIONS[row.action]?.label ?? row.action}</span>
@@ -93,8 +93,8 @@ export default function LogsPage() {
           </div>
 
           <div className="mt-5 flex items-center justify-between gap-4">
-            <p className="font-mono text-xs text-muted">
-              {data.total} {t('DÒNG · TRANG')} {data.page}/{pages}
+            <p className="text-sm text-muted">
+              {t('{0} dòng, trang {1}/{2}', data.total, data.page, pages)}
             </p>
             <div className="flex gap-3">
               <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="btn btn-sm">

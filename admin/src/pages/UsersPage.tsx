@@ -59,7 +59,7 @@ export default function UsersPage() {
 
   return (
     <>
-      <PageHeader code={t('04 · NGƯỜI DÙNG')} title={t('Người dùng')}>
+      <PageHeader title={t('Người dùng')}>
         <form onSubmit={search} className="flex gap-3">
           <input name="q" defaultValue={q} maxLength={100} placeholder={t('Tìm theo tên hoặc email')} className="field w-64 py-2" />
           <button className="btn btn-sm">{t('Tìm')}</button>
@@ -75,10 +75,10 @@ export default function UsersPage() {
             <table className="table">
               <thead>
                 <tr>
-                  <th>{t('NGƯỜI DÙNG')}</th>
-                  <th>{t('VAI TRÒ')}</th>
-                  <th>{t('TÀI LIỆU')}</th>
-                  <th>{t('NGÀY TẠO')}</th>
+                  <th>{t('Người dùng')}</th>
+                  <th>{t('Vai trò')}</th>
+                  <th>{t('Tài liệu')}</th>
+                  <th>{t('Ngày tạo')}</th>
                   <th />
                 </tr>
               </thead>
@@ -88,16 +88,16 @@ export default function UsersPage() {
                     <td>
                       <p className="font-display font-bold">
                         {row.name}
-                        {row.id === me?.id && <span className="tag ml-2 bg-mark">{t('BẠN')}</span>}
+                        {row.id === me?.id && <span className="tag ml-2 bg-mark">{t('Bạn')}</span>}
                       </p>
-                      <p className="font-mono text-xs text-muted">{row.email}</p>
+                      <p className="text-xs text-muted">{row.email}</p>
                     </td>
                     <td>
-                      <span className={`tag ${row.role === 'ADMIN' ? 'bg-ink text-paper' : ''}`}>{row.role === 'ADMIN' ? t('QUẢN TRỊ') : t('SINH VIÊN')}</span>
-                      {row.isLocked && <span className="tag ml-2 bg-flame">{t('ĐÃ KHÓA')}</span>}
+                      <span className={`tag ${row.role === 'ADMIN' ? 'bg-ink text-paper' : ''}`}>{row.role === 'ADMIN' ? t('Quản trị') : t('Sinh viên')}</span>
+                      {row.isLocked && <span className="tag ml-2 bg-flame">{t('Đã khóa')}</span>}
                     </td>
-                    <td className="font-mono tabular-nums">{row._count.documents}</td>
-                    <td className="font-mono text-xs whitespace-nowrap">{new Date(row.createdAt).toLocaleDateString(locale)}</td>
+                    <td className="tabular-nums">{row._count.documents}</td>
+                    <td className="text-sm whitespace-nowrap">{new Date(row.createdAt).toLocaleDateString(locale)}</td>
                     <td>
                       {/* Server cũng chặn việc tự khóa hoặc tự hạ quyền */}
                       {row.id !== me?.id && (
@@ -129,8 +129,8 @@ export default function UsersPage() {
           </div>
 
           <div className="mt-5 flex items-center justify-between gap-4">
-            <p className="font-mono text-xs text-muted">
-              {data.total} {t('NGƯỜI DÙNG · TRANG')} {data.page}/{pages}
+            <p className="text-sm text-muted">
+              {t('{0} người dùng, trang {1}/{2}', data.total, data.page, pages)}
             </p>
             <div className="flex gap-3">
               <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="btn btn-sm">

@@ -1,8 +1,15 @@
 import { Router, type Request, type Response } from 'express'
 import { isProduction } from '../../config/env.js'
 import { requireAuth } from '../../middlewares/auth.js'
-import { authLimiter, loginEmailLimiter, registerLimiter } from '../../middlewares/rateLimit.js'
-import { changePasswordSchema, loginSchema, registerSchema } from './auth.schema.js'
+import { authLimiter, forgotLimiter, loginEmailLimiter, registerLimiter } from '../../middlewares/rateLimit.js'
+import {
+  changePasswordSchema,
+  forgotPasswordSchema,
+  loginSchema,
+  profileSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from './auth.schema.js'
 import * as authService from './auth.service.js'
 
 // Trang quản trị (thư mục admin/) gửi kèm header này. Nó dùng cookie riêng để phiên quản trị
@@ -59,6 +66,21 @@ authRouter.post('/logout-all', requireAuth, async (req, res) => {
   res.status(204).end()
 })
 
+authRouter.post('/forgot-password', forgotLimiter, async (req, res) => {
+  await authService.requestPasswordReset(forgotPasswordSchema.parse(req.body))
+  res.status(204).end()
+})
+
+// authLimiter chỉ đếm lần thất bại: chặn việc dò mã đặt lại mật khẩu
+authRouter.post('/reset-password', authLimiter, async (req, res) => {
+  await authService.resetPassword(resetPasswordSchema.parse(req.body))
+  res.status(204).end()
+})
+
 authRouter.get('/me', requireAuth, async (req, res) => {
   res.json({ user: await authService.getProfile(req.user!.id) })
+})
+
+authRouter.patch('/me', requireAuth, async (req, res) => {
+  res.json({ user: await authService.updateProfile(req.user!.id, profileSchema.parse(req.body)) })
 })

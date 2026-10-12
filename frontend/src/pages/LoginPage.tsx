@@ -27,14 +27,19 @@ export default function LoginPage() {
   }
 
   return (
-    <AuthShell kicker={t('/ ĐĂNG NHẬP')} title={t('Chào mừng')} highlight={t('quay lại.')}>
+    <AuthShell title={t('Đăng nhập')} note={t('Vào để tải tài liệu, lưu lại và bình luận.')}>
       <form onSubmit={submit} className="space-y-5">
         <label className="block">
           <span className="mb-1 block font-display font-bold">Email</span>
           <input name="email" type="email" required autoComplete="email" className="field" />
         </label>
         <label className="block">
-          <span className="mb-1 block font-display font-bold">{t('Mật khẩu')}</span>
+          <span className="mb-1 flex items-baseline justify-between font-display font-bold">
+            {t('Mật khẩu')}
+            <Link to="/forgot-password" className="font-sans text-sm font-normal text-muted underline underline-offset-4 hover:text-ink">
+              {t('Quên mật khẩu?')}
+            </Link>
+          </span>
           <input name="password" type="password" required autoComplete="current-password" className="field" />
         </label>
         {error && (
@@ -43,7 +48,7 @@ export default function LoginPage() {
           </p>
         )}
         <button disabled={busy} className="btn btn-ink w-full disabled:opacity-60">
-          {busy ? t('Đang đăng nhập...') : t('Đăng nhập →')}
+          {busy ? t('Đang đăng nhập...') : t('Đăng nhập')}
         </button>
         <p className="text-sm text-muted">
           {t('Chưa có tài khoản?')}{' '}

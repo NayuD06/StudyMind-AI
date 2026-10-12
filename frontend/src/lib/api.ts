@@ -1,7 +1,7 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios'
 import { t } from './i18n.ts'
 
-export type User = { id: number; name: string; email: string; role: 'STUDENT' | 'ADMIN' }
+export type User = { id: number; name: string; email: string; role: 'STUDENT' | 'ADMIN'; school: string | null; major: string | null }
 type Session = { user: User; accessToken: string }
 
 // withCredentials để trình duyệt gửi kèm cookie refresh token (httpOnly)

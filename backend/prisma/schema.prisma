@@ -63,6 +63,7 @@ model User {
   reports           Report[]
   chatSessions      ChatSession[]
   refreshTokens     RefreshToken[]
+  passwordResets    PasswordResetToken[]
   adminLogs         AdminLog[]
   notifications     Notification[]
 
@@ -82,6 +83,20 @@ model RefreshToken {
 
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+// Liên kết đặt lại mật khẩu gửi qua email: chỉ lưu mã băm, dùng một lần, hết hạn sau 30 phút
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  tokenHash String   @unique
+  userId    Int
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
 }
 
 model Subject {

@@ -1,0 +1,11 @@
+# Dùng khi build image web (context là thư mục gốc)
+.git
+.github
+**/node_modules
+**/dist
+**/.env
+**/.env.*
+backend
+ai-service
+backups
+doc

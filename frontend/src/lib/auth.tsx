@@ -12,6 +12,7 @@ type AuthValue = {
   logout: () => Promise<void>
   changePassword: (input: { currentPassword: string; newPassword: string }) => Promise<void>
   logoutAll: () => Promise<void>
+  updateProfile: (input: { name: string; school: string; major: string }) => Promise<void>
 }
 
 const AuthContext = createContext<AuthValue | null>(null)
@@ -50,6 +51,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await api.post('/auth/logout-all')
       setAccessToken(null)
       setUser(null)
+    },
+    updateProfile: async (input) => {
+      const { data } = await api.patch<{ user: User }>('/auth/me', input)
+      setUser(data.user)
     },
   }
 

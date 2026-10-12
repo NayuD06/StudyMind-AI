@@ -31,7 +31,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <AuthShell kicker={t('/ ĐĂNG KÝ')} title={t('Học cùng nhau,')} highlight={t('nhanh hơn.')}>
+    <AuthShell title={t('Tạo tài khoản')} note={t('Chỉ cần email là đăng và tải được tài liệu.')}>
       <form onSubmit={submit} className="space-y-5">
         <label className="block">
           <span className="mb-1 block font-display font-bold">{t('Họ và tên')}</span>
@@ -52,7 +52,7 @@ export default function RegisterPage() {
             autoComplete="new-password"
             className="field"
           />
-          <span className="mt-1 block font-mono text-xs text-muted">{t('Tối thiểu 8 ký tự')}</span>
+          <span className="mt-1 block text-xs text-muted">{t('Tối thiểu 8 ký tự')}</span>
         </label>
         {error && (
           <p role="alert" className="animate-pop border-l-4 border-flame bg-paper px-3 py-2 text-sm">
@@ -60,7 +60,7 @@ export default function RegisterPage() {
           </p>
         )}
         <button disabled={busy} className="btn btn-ink w-full disabled:opacity-60">
-          {busy ? t('Đang tạo tài khoản...') : t('Tạo tài khoản →')}
+          {busy ? t('Đang tạo tài khoản...') : t('Tạo tài khoản')}
         </button>
         <p className="text-sm text-muted">
           {t('Đã có tài khoản?')}{' '}

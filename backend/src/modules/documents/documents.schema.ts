@@ -25,6 +25,10 @@ export const createDocumentSchema = z.object({
 export const listDocumentsSchema = z.object({
   q: z.string().trim().max(200).optional(),
   subjectId: optionalId,
+  uploaderId: optionalId,
+  school: optionalText(120),
+  major: optionalText(120),
+  minRating: z.coerce.number().int().min(1).max(5).optional(),
   sort: z.enum(['new', 'popular']).default('new'),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(12),

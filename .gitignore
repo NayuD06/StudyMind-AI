@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+!.env.example
+
+# PDF người dùng tải lên
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Bản sao lưu database
+backups/

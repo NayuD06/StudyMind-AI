@@ -1,0 +1,272 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+// Trạng thái xử lý AI của tài liệu (trích xuất, chia đoạn, tạo embedding)
+enum IndexStatus {
+  PENDING
+  PROCESSING
+  READY
+  FAILED
+}
+
+// Tài liệu mới phải được quản trị viên duyệt rồi mới hiện công khai
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  REJECTED
+}
+
+enum ChatRole {
+  USER
+  ASSISTANT
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(STUDENT)
+  isLocked     Boolean  @default(false) // quản trị viên khóa: không đăng nhập hay làm mới phiên được
+  school       String?
+  major        String?
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  documents         Document[]     @relation("UploadedDocuments")
+  reviewedDocuments Document[]     @relation("ReviewedDocuments")
+  comments          Comment[]
+  ratings           Rating[]
+  favorites         Favorite[]
+  downloads         Download[]
+  reports           Report[]
+  chatSessions      ChatSession[]
+  refreshTokens     RefreshToken[]
+  adminLogs         AdminLog[]
+
+  @@map("users")
+}
+
+// Chỉ lưu mã băm của refresh token; token bị dùng lại sau khi thu hồi sẽ hủy mọi phiên của người dùng
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  tokenHash String    @unique
+  userId    Int
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("refresh_tokens")
+}
+
+model Subject {
+  id     Int     @id @default(autoincrement())
+  name   String
+  slug   String  @unique
+  major  String?
+  school String?
+
+  documents DocumentSubject[]
+
+  @@map("subjects")
+}
+
+model Document {
+  id               Int              @id @default(autoincrement())
+  title            String
+  description      String?          @db.Text
+  storageKey       String           @unique // tên file trên đĩa (UUID), không dùng tên người dùng gửi lên
+  fileName         String // tên gốc, chỉ để hiển thị
+  fileSize         Int
+  pageCount        Int?
+  school           String?
+  major            String?
+  indexStatus      IndexStatus      @default(PENDING)
+  isHidden         Boolean          @default(false)
+  moderationStatus ModerationStatus @default(PENDING)
+  rejectReason     String?
+  reviewedAt       DateTime?
+  reviewedById     Int?
+  piiFindings      Json? // email, số điện thoại phát hiện trong PDF (đã che bớt)
+  viewCount        Int              @default(0)
+  downloadCount    Int              @default(0)
+  uploaderId       Int
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  uploader     User              @relation("UploadedDocuments", fields: [uploaderId], references: [id])
+  reviewedBy   User?             @relation("ReviewedDocuments", fields: [reviewedById], references: [id], onDelete: SetNull)
+  subjects     DocumentSubject[]
+  comments     Comment[]
+  ratings      Rating[]
+  favorites    Favorite[]
+  downloads    Download[]
+  reports      Report[]
+  chunks       DocumentChunk[]
+  chatSessions ChatSession[]
+
+  @@index([uploaderId])
+  // Dùng cho tìm kiếm từ khóa (mốc so sánh với tìm kiếm ngữ nghĩa)
+  @@fulltext([title, description])
+  @@map("documents")
+}
+
+model DocumentSubject {
+  documentId Int
+  subjectId  Int
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  subject  Subject  @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+
+  @@id([documentId, subjectId])
+  @@map("document_subjects")
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.Text
+  userId     Int
+  documentId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+  @@map("comments")
+}
+
+model Rating {
+  userId     Int
+  documentId Int
+  score      Int // 1 đến 5
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([userId, documentId])
+  @@map("ratings")
+}
+
+model Favorite {
+  userId     Int
+  documentId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([userId, documentId])
+  @@map("favorites")
+}
+
+model Download {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  documentId Int
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([documentId])
+  @@map("downloads")
+}
+
+model Report {
+  id         Int          @id @default(autoincrement())
+  reason     String       @db.Text
+  status     ReportStatus @default(OPEN)
+  userId     Int
+  documentId Int
+  createdAt  DateTime     @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@map("reports")
+}
+
+// Nhật ký thao tác của quản trị viên: chỉ ghi thêm, không có API sửa hay xóa
+model AdminLog {
+  id        Int      @id @default(autoincrement())
+  adminId   Int
+  action    String // ví dụ DOCUMENT_APPROVE, USER_LOCK (xem lib/audit.ts)
+  summary   String   @db.VarChar(500) // mô tả đối tượng bị tác động tại thời điểm đó
+  ip        String?
+  createdAt DateTime @default(now())
+
+  admin User @relation(fields: [adminId], references: [id])
+
+  @@index([createdAt])
+  @@map("admin_logs")
+}
+
+// Vector nằm trong Qdrant; MySQL chỉ giữ nội dung đoạn và metadata để hiển thị trích dẫn
+model DocumentChunk {
+  id         Int    @id @default(autoincrement())
+  documentId Int
+  chunkIndex Int
+  pageNumber Int
+  content    String @db.Text
+  vectorId   String @unique // id của point tương ứng trong Qdrant
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, chunkIndex])
+  @@map("document_chunks")
+}
+
+model ChatSession {
+  id         Int      @id @default(autoincrement())
+  title      String?
+  userId     Int
+  documentId Int?
+  createdAt  DateTime @default(now())
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document Document?     @relation(fields: [documentId], references: [id], onDelete: SetNull)
+  messages ChatMessage[]
+
+  @@index([userId])
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  sessionId Int
+  role      ChatRole
+  content   String   @db.Text
+  citations Json? // [{ chunkId, pageNumber, excerpt }]
+  createdAt DateTime @default(now())
+
+  session ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("chat_messages")
+}

@@ -1,0 +1,188 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Space Grotesk', 'Be Vietnam Pro', sans-serif;
+  --font-sans: 'Be Vietnam Pro', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --color-paper: #f4f1e8;
+  --color-sheet: #fffdf7;
+  --color-ink: #15140f;
+  --color-muted: #6b675c;
+  --color-mark: #ffe24a;
+  --color-flame: #ff4f2e;
+
+  --animate-marquee: marquee 30s linear infinite;
+  --animate-rise: rise 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  --animate-pop: pop 0.45s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+  --animate-blink: blink 1s steps(1) infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(110%);
+    }
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.96);
+    }
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes float {
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  @keyframes sweep {
+    to {
+      background-size: 100% 100%;
+    }
+  }
+}
+
+body {
+  background-color: var(--color-paper);
+  /* Lưới kẻ ô mờ như giấy vở */
+  background-image:
+    linear-gradient(to right, rgb(21 20 15 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(21 20 15 / 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-mark);
+  color: var(--color-ink);
+}
+
+@layer components {
+  /* Nút góc vuông, bóng cứng: nhấc lên khi hover, lún xuống khi bấm */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 2px solid var(--color-ink);
+    background: var(--color-sheet);
+    padding: 0.7rem 1.2rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    box-shadow: 4px 4px 0 var(--color-ink);
+    transition:
+      transform 0.15s,
+      box-shadow 0.15s,
+      background-color 0.15s;
+    cursor: pointer;
+  }
+  .btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--color-ink);
+  }
+  .btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--color-ink);
+  }
+  .btn-ink {
+    background: var(--color-ink);
+    color: var(--color-paper);
+    box-shadow: 4px 4px 0 var(--color-flame);
+  }
+  .btn-ink:hover {
+    box-shadow: 6px 6px 0 var(--color-flame);
+  }
+  .btn-flame {
+    background: var(--color-flame);
+  }
+  .btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.875rem;
+  }
+
+  .panel {
+    border: 2px solid var(--color-ink);
+    background: var(--color-sheet);
+  }
+  .shadow-hard {
+    box-shadow: 6px 6px 0 var(--color-ink);
+  }
+
+  /* Vệt bút dạ quang quét qua chữ */
+  .mark {
+    background: linear-gradient(var(--color-mark), var(--color-mark)) no-repeat 0 85% / 0% 100%;
+    animation: sweep 0.7s cubic-bezier(0.6, 0, 0.2, 1) 0.9s forwards;
+    padding: 0 0.15em;
+  }
+
+  /* Gạch chân chạy từ trái sang khi hover */
+  .link-wipe {
+    position: relative;
+  }
+  .link-wipe::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -4px;
+    height: 2px;
+    background: var(--color-ink);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s;
+  }
+  .link-wipe:hover::after,
+  .link-wipe.active::after {
+    transform: scaleX(1);
+  }
+
+  /* Hiện dần khi cuộn tới (xem components/Reveal.tsx) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.6s,
+      transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  .field {
+    width: 100%;
+    border: 2px solid var(--color-ink);
+    background: var(--color-sheet);
+    padding: 0.7rem 0.9rem;
+    outline: none;
+    transition: box-shadow 0.15s;
+  }
+  .field:focus {
+    box-shadow: 4px 4px 0 var(--color-flame);
+  }
+
+  .text-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--color-paper);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

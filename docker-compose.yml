@@ -1,0 +1,43 @@
+# Mật khẩu lấy từ file .env ở thư mục gốc (xem .env.example).
+# Mọi cổng chỉ mở cho 127.0.0.1 nên máy khác trong mạng không truy cập được.
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Thiếu MYSQL_ROOT_PASSWORD trong .env}
+      MYSQL_DATABASE: studymind
+      MYSQL_USER: studymind
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Thiếu MYSQL_PASSWORD trong .env}
+    ports:
+      - "127.0.0.1:3307:3306" # 3307 để không đụng MySQL/XAMPP đã cài sẵn trên máy
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "127.0.0.1:6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  # Chỉ chạy khi gọi: docker compose --profile ai up -d --build
+  ai-service:
+    profiles: ["ai"]
+    build: ./ai-service
+    env_file: ./ai-service/.env
+    environment:
+      QDRANT_URL: http://qdrant:6333
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./ai-service/app:/code/app
+      - ./backend/uploads:/data/uploads:ro
+      - hf_cache:/root/.cache/huggingface
+    depends_on:
+      - qdrant
+
+volumes:
+  mysql_data:
+  qdrant_data:
+  hf_cache:

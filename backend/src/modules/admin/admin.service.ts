@@ -84,8 +84,9 @@ export async function updateUser(id: number, input: z.infer<typeof updateUserSch
       data: { role: input.role, isLocked: input.isLocked },
       select: { id: true, name: true, email: true, role: true, isLocked: true },
     }),
-    // Khóa hoặc đổi quyền thì hủy mọi phiên đang mở, buộc đăng nhập lại với quyền mới
-    prisma.refreshToken.updateMany({ where: { userId: id, revokedAt: null }, data: { revokedAt: new Date() } }),
+    // Khóa hoặc đổi quyền thì hủy mọi phiên đang mở, buộc đăng nhập lại với quyền mới.
+    // Xóa hẳn (như endAllSessions): token cũ còn ở thiết bị khác gửi lên sẽ không kéo theo hủy phiên mới.
+    prisma.refreshToken.deleteMany({ where: { userId: id } }),
   ])
   if (input.isLocked !== undefined) await logAdminAction(admin.id, input.isLocked ? 'USER_LOCK' : 'USER_UNLOCK', user.email)
   if (input.role !== undefined) {

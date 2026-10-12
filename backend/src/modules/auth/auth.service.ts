@@ -12,6 +12,9 @@ import type { changePasswordSchema, loginSchema, registerSchema } from './auth.s
 const BCRYPT_COST = 12
 const ACCESS_TTL = '15m'
 export const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000
+// Token vừa được đổi vẫn dùng lại được trong khoảng này: hai tab mở cùng lúc gửi chung một cookie,
+// tab đến sau không phải kẻ trộm. Đánh đổi: token bị lấy cắp cũng dùng lại được trong đúng khoảng đó.
+const REUSE_GRACE_MS = 10_000
 
 // So sánh với mã băm giả khi email không tồn tại để thời gian phản hồi không làm lộ email nào đã đăng ký
 const DUMMY_HASH = bcrypt.hashSync('khong-ton-tai', BCRYPT_COST)
@@ -63,22 +66,17 @@ export async function refresh(token: string | undefined, adminOnly = false) {
   const row = await prisma.refreshToken.findUnique({ where: { tokenHash: sha256(token) }, include: { user: true } })
   if (!row) throw invalid
 
-  if (row.revokedAt) {
-    // Token đã thu hồi mà vẫn được gửi lên: có thể đã bị đánh cắp, hủy mọi phiên của người dùng này
-    await prisma.refreshToken.updateMany({
-      where: { userId: row.userId, revokedAt: null },
-      data: { revokedAt: new Date() },
-    })
+  // revokedAt chỉ được đặt khi token đã đổi lấy token mới (đăng xuất, khóa, đổi mật khẩu đều xóa hẳn dòng)
+  if (row.revokedAt && Date.now() - row.revokedAt.getTime() > REUSE_GRACE_MS) {
+    // Token đã đổi từ lâu mà vẫn được gửi lên: có thể đã bị đánh cắp, hủy mọi phiên của người dùng này
+    await prisma.refreshToken.deleteMany({ where: { userId: row.userId } })
     throw invalid
   }
   if (row.expiresAt < new Date()) throw invalid
 
-  // Điều kiện revokedAt: null bảo đảm hai request đồng thời không cùng đổi được một token
-  const { count } = await prisma.refreshToken.updateMany({
-    where: { id: row.id, revokedAt: null },
-    data: { revokedAt: new Date() },
-  })
-  if (count === 0) throw invalid
+  // Request khác vừa đổi token này trước một nhịp thì không dòng nào được cập nhật;
+  // vẫn trong khoảng ân hạn nên cấp phiên bình thường
+  await prisma.refreshToken.updateMany({ where: { id: row.id, revokedAt: null }, data: { revokedAt: new Date() } })
   if (row.user.isLocked || (adminOnly && row.user.role !== 'ADMIN')) throw invalid
 
   return startSession(row.user)
@@ -86,10 +84,8 @@ export async function refresh(token: string | undefined, adminOnly = false) {
 
 export async function logout(token: string | undefined) {
   if (!token) return
-  await prisma.refreshToken.updateMany({
-    where: { tokenHash: sha256(token), revokedAt: null },
-    data: { revokedAt: new Date() },
-  })
+  // Xóa hẳn để token đã đăng xuất không lọt vào khoảng ân hạn của refresh
+  await prisma.refreshToken.deleteMany({ where: { tokenHash: sha256(token) } })
 }
 
 // Hủy mọi refresh token và làm mất hiệu lực mọi access token đã cấp trước mốc cutoff.

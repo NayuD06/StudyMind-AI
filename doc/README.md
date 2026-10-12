@@ -15,4 +15,5 @@ Thư mục này lưu lại những gì đã làm trên dự án, mỗi phần vi
 | [12-10-2026-du-lieu-mau.md](12-10-2026-du-lieu-mau.md) | Lệnh tạo dữ liệu mẫu để demo | Đã commit |
 | [12-10-2026-giao-dien-toi-va-da-ngon-ngu.md](12-10-2026-giao-dien-toi-va-da-ngon-ngu.md) | Giao diện sáng/tối, tiếng Việt/tiếng Anh | Đã commit |
 | [12-10-2026-ci-cd.md](12-10-2026-ci-cd.md) | GitHub Actions: kiểm tra tự động và đóng gói bản phát hành | Đã commit |
+| [12-10-2026-sua-loi-phien-dang-nhap.md](12-10-2026-sua-loi-phien-dang-nhap.md) | Sửa lỗi bị đăng xuất khi mở hai tab và khi quản trị viên đổi quyền | Đã commit |
 | [12-10-2026-ke-hoach-ai.md](12-10-2026-ke-hoach-ai.md) | Kế hoạch 4 bước cho phần AI (tìm kiếm ngữ nghĩa, RAG) | Chưa bắt đầu |

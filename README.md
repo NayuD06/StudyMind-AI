@@ -116,7 +116,7 @@ Cả hai trang đều có nút đổi giao diện sáng/tối và nút đổi ti
 
 ## Bảo mật đã áp dụng
 
-- Access token (15 phút) chỉ nằm trong bộ nhớ trình duyệt; refresh token nằm trong cookie `httpOnly`, `SameSite=Strict`, dùng một lần rồi đổi mới.
+- Access token (15 phút) chỉ nằm trong bộ nhớ trình duyệt; refresh token nằm trong cookie `httpOnly`, `SameSite=Strict`, mỗi lần dùng là đổi mới. Token đã đổi mà bị gửi lại sau 10 giây thì mọi phiên của người đó bị hủy (10 giây đầu được bỏ qua, để hai tab mở cùng lúc không đăng xuất lẫn nhau).
 - CORS chỉ cho phép các địa chỉ trong `CORS_ORIGIN`.
 - Giới hạn tần suất (`backend/src/middlewares/rateLimit.ts`): toàn bộ API 120 lần/phút; đăng nhập sai 10 lần/15 phút theo IP và theo từng email; tối đa 5 tài khoản mới mỗi giờ mỗi IP; sẵn bộ giới hạn riêng cho API gọi AI. Bộ đếm nằm trong bộ nhớ nên mất khi khởi động lại backend.
 - AI service yêu cầu header `X-Internal-Key`; MySQL, Qdrant và AI service chỉ mở cổng cho `127.0.0.1`.

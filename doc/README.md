@@ -22,4 +22,5 @@ Thư mục này lưu lại những gì đã làm trên dự án, mỗi phần vi
 | [12-10-2026-dong-goi-trien-khai.md](12-10-2026-dong-goi-trien-khai.md) | Dockerfile, nginx và docker compose để chạy bản đóng gói | Đã commit |
 | [12-10-2026-giao-dien-tu-nhien.md](12-10-2026-giao-dien-tu-nhien.md) | Bỏ trang trí thừa cho giao diện tự nhiên hơn, trang chủ dùng dữ liệu thật | Đã commit |
 | [12-10-2026-hieu-ung-giao-dien.md](12-10-2026-hieu-ung-giao-dien.md) | Hiệu ứng chuyển động cho trang sinh viên và trang quản trị | Đã commit |
+| [13-10-2026-huong-dan-va-kich-ban-test.md](13-10-2026-huong-dan-va-kich-ban-test.md) | Hướng dẫn dựng môi trường và kịch bản test tay cho mọi chức năng | Đã commit |
 | [12-10-2026-ke-hoach-ai.md](12-10-2026-ke-hoach-ai.md) | Kế hoạch 4 bước cho phần AI (tìm kiếm ngữ nghĩa, RAG) | Chưa bắt đầu |
